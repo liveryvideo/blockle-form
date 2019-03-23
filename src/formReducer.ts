@@ -3,9 +3,9 @@ import { Reducer } from './createStore';
 export const initialState: FormState = {};
 
 export interface FormFieldState {
+  name: string;
   value: any;
-  focus: boolean;
-  error?: string;
+  invalid: null | string;
   dirty: boolean;
 }
 
@@ -18,6 +18,7 @@ type SET_VALUE = {
   payload: {
     name: string,
     value: any,
+    invalid: null | string,
   },
 };
 
@@ -38,14 +39,16 @@ type REMOVE = {
 
 export type Actions = SET_VALUE | INIT | REMOVE;
 
-export const formReducer: Reducer<FormState, Actions> = (state, action) => {
+export const formReducer: Reducer<FormState, Actions> = (state, action): FormState => {
   switch (action.type) {
     case 'INIT':
       return {
         ...state,
         [action.payload.name]: {
+          name: action.payload.name,
           value: action.payload.value,
-          ...state[action.payload.name],
+          invalid: null,
+          dirty: false,
         },
       };
 
@@ -62,10 +65,12 @@ export const formReducer: Reducer<FormState, Actions> = (state, action) => {
         [action.payload.name]: {
           ...state[action.payload.name],
           value: action.payload.value,
+          invalid: action.payload.invalid,
         },
       };
 
     default:
-      throw new Error();
+      // @ts-ignore
+      throw new Error(`Unkown action type "${action.type}"`);
   }
 };

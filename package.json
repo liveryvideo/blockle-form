@@ -13,6 +13,10 @@
   "main": "dist/blockle-form.cjs.js",
   "module": "dist/blockle-form.esm.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "repository": "git@github.com:Blockle/blockle-form.git",
   "author": "Niek Saarberg",
   "license": "MIT",

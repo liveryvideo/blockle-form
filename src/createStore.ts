@@ -1,5 +1,5 @@
 type Payload = {
-  [key: string]: undefined | boolean | string,
+  [key: string]: any,
 };
 
 type Action = {

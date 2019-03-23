@@ -3,7 +3,15 @@ import { useContext, useEffect } from 'react';
 import { FormContext } from 'context';
 import { useForceUpdate } from 'useForceUpdate';
 
-export const useForm = <V = any>(name: string, value: V) => {
+type Validator = (value: any) => null | string;
+
+type UseForm<V = any> = {
+  name: string,
+  value: V
+  validate: Validator,
+};
+
+export const useForm = <V>({ value, name, validate }: UseForm<V>) => {
   const store = useContext(FormContext);
   const forceUpdate = useForceUpdate();
 
@@ -18,7 +26,7 @@ export const useForm = <V = any>(name: string, value: V) => {
 
   // Update value when "prop.value" changes
   useEffect(() => {
-    store.dispatch({ type: 'SET_VALUE', payload: { name, value } });
+    store.dispatch({ type: 'SET_VALUE', payload: { name, value, invalid: validate(value) } });
   }, [value]);
 
   // Subscribe to store changes
@@ -41,6 +49,15 @@ export const useForm = <V = any>(name: string, value: V) => {
   return {
     value: state.value as V,
     dirty: state.value !== value,
-    setValue: (value: any) => store.dispatch({ type: 'SET_VALUE', payload: { name, value } }),
+    invalid: state.invalid,
+    setValue: (value: V) => {
+      store.dispatch({
+        type: 'SET_VALUE', payload: {
+          name,
+          value,
+          invalid: validate(value),
+        },
+      });
+    },
   };
 };

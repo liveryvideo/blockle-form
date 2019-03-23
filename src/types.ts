@@ -8,6 +8,6 @@ export type FormElementState = {
 
 export type FormElementProps<V = any> = {
   name: string,
-  value: V,
+  value?: V,
   required?: boolean,
 };
