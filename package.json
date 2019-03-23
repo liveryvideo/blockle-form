@@ -10,7 +10,7 @@
     "test": "jest",
     "lint": "tslint -p tsconfig.json"
   },
-  "main": "dist/blockle-form.js",
+  "main": "dist/blockle-form.cjs.js",
   "module": "dist/blockle-form.esm.js",
   "types": "dist/index.d.ts",
   "repository": "git@github.com:Blockle/blockle-form.git",
