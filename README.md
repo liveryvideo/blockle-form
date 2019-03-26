@@ -18,21 +18,11 @@ const MyForm = () => {
     >
       <Input
         type="text"
-        name="name"
+        name="firstName"
         required
       />
 
       <VegetableSelect name="vegetable" required />
-
-      <FormError
-        render={(errors) => {
-          if(errors.length) {
-            return JSON.stringify(errors);
-          }
-
-          return null;
-        }}
-      >
 
       <submit type="submit" value="send" />
     </Form>
