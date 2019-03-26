@@ -47,8 +47,18 @@ import { useForm } from '@blockle/form';
 
 type Props = FormElementProps<string>;
 
-export const VegetableSelect = ({ name, value }) => {
-  const { value, setValue } = useForm(name, value);
+export const VegetableSelect = ({ name, value: propValue, required }) => {
+  const { value, setValue, invalid } = useForm<string>({
+    name,
+    value: propValue,
+    validate: (value: string) => {
+      if(required && !value) {
+        return 'required';
+      }
+
+      return null;
+    }
+  }); 
 
   return (
     <div>
@@ -70,6 +80,9 @@ export const VegetableSelect = ({ name, value }) => {
       >
         Carrots
       </button>
+
+      {(invalid === 'required') &&
+        <div>Please select an option</div>}
     </div>
   )
 }
