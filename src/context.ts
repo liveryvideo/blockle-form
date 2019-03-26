@@ -1,7 +1,8 @@
 import React from 'react';
 
-import { Store } from 'createStore';
-import { FormState, Actions } from 'formReducer';
+import { Store } from 'store/createStore';
+import { FormState } from 'store/reducer';
+import { Actions } from 'store/actions';
 
 export type IFormContext = Store<FormState, Actions>;
 

@@ -1,11 +1,11 @@
-type Payload = {
-  [key: string]: any,
-};
+export interface Action<T extends string = string> {
+  type: T;
+}
 
-type Action = {
-  type: string
-  payload?: Payload,
-};
+export interface ActionWithPayload<T extends string, P extends {}> extends Action {
+  type: T;
+  payload: P;
+}
 
 type Listener<S> = (state: S, currentState: S) => void;
 
@@ -17,7 +17,7 @@ export type Store<S, A extends Action> = {
   subscribe: (listener: Listener<S>) => () => void,
 };
 
-export const createStore = <S, A extends Action = Action>(initialState: S, reducer: Reducer<any, any>) => {
+export const createStore = <S, A extends Action = Action>(reducer: Reducer<any, any>, initialState: S = {} as S) => {
   const listeners: Listener<S>[] = [];
   let currentState = initialState;
 

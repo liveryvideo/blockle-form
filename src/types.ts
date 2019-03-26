@@ -11,3 +11,7 @@ export type FormElementProps<V = any> = {
   value?: V,
   required?: boolean,
 };
+
+export type ValueMap = {
+  [key: string]: any;
+};
