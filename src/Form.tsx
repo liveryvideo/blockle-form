@@ -2,17 +2,18 @@ import React, { useMemo } from 'react';
 
 import { FormContext } from 'context';
 import { createStore } from 'store/createStore';
-import { FormState, reducer } from 'store/reducer';
+import { reducer } from 'store/reducer';
 import { getValueMap, isValid } from 'store/selectors';
-import { ValueMap } from 'types';
+import { ValueMap, FormState } from 'types';
 
 type Props = {
   autocomplete?: boolean,
   children?: React.ReactNode,
-  onSubmit: (values: ValueMap) => Promise<any>,
+  onSubmit: (values: ValueMap) => void,
+  id?: string,
 };
 
-const Form = ({ autocomplete, children, onSubmit }: Props) => {
+const Form = ({ autocomplete, children, onSubmit, id }: Props) => {
   const store = useMemo(
     () => createStore<FormState>(reducer),
     [],
@@ -27,6 +28,8 @@ const Form = ({ autocomplete, children, onSubmit }: Props) => {
       return console.log('Form invalid');
     }
 
+    onSubmit(getValueMap(state));
+
     console.log('Form submit', getValueMap(state));
   };
 
@@ -36,6 +39,7 @@ const Form = ({ autocomplete, children, onSubmit }: Props) => {
         autoComplete={autocomplete ? 'on' : 'off'}
         onSubmit={submit}
         noValidate
+        id={id}
       >
         {children}
       </form>

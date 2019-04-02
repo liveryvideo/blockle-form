@@ -1,29 +1,40 @@
 import { Reducer } from './createStore';
 import { Actions } from './actions';
+import { FormState } from '../types';
 
 export const initialState: FormState = {};
 
-export interface FormField {
-  name: string;
-  value?: any;
-  invalid?: null | string;
-  dirty?: boolean;
-}
-
-export interface FormState {
-  [key: string]: FormField;
-}
-
 export const reducer: Reducer<FormState, Actions> = (state, action): FormState => {
   switch (action.type) {
-    case 'UPDATE_FIELD':
+    // TODO SET_VALUE
+    case 'UPDATE_FIELD': {
+      const { name } = action.payload;
+      // const errors = action.payload.errors || state[name].errors || {};
+
       return {
         ...state,
-        [action.payload.name]: {
-          ...state[action.payload.name],
+        [name]: {
+          ...state[name],
           ...action.payload,
+          // invalid: !!Object.keys(errors).length,
         },
       };
+    }
+
+    case 'SET_VALUE': {
+      const { name, value, errors } = action.payload;
+
+      return {
+        ...state,
+        [name]: {
+          ...state[name],
+          name,
+          value,
+          errors,
+          invalid: errors ? !!Object.keys(errors).length : false,
+        },
+      };
+    }
 
     case 'REMOVE':
       const nextState = { ...state };

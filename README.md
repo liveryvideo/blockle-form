@@ -24,6 +24,13 @@ const MyForm = () => {
 
       <VegetableSelect name="vegetable" required />
 
+      <FormError
+        for="vegetable"
+        render={(message) => (
+          <div>{message}</div>
+        )}
+      >
+
       <submit type="submit" value="send" />
     </Form>
   );

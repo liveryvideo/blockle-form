@@ -1,4 +1,4 @@
-import { FormState } from './reducer';
+import { FormState } from 'types';
 
 export const getField = (state: FormState, name: string) =>
   state[name];
