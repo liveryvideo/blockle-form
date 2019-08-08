@@ -44,6 +44,11 @@ export const useForm = <V extends any>({ value, name, validate, computeValue }: 
         errors,
         touched: true,
       });
+
+      // shallow compare?
+      if (errors !== state.errors) {
+        context.dispatchError(name, errors);
+      }
     },
   };
 };

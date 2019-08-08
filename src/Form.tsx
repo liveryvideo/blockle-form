@@ -1,13 +1,14 @@
-import React, { useMemo, useState, MutableRefObject } from 'react';
+import React, { useMemo, MutableRefObject } from 'react';
 
-import { FormContext } from 'context';
-import { FormData, FormField } from 'types';
+import { FormContext, Context } from 'context';
+import { FormData, FormField, ValidationErrors } from 'types';
 
 type Props = {
   autocomplete?: boolean,
   children?: React.ReactNode,
   onSubmit: (values: FormData) => void,
   id?: string,
+  className?: string;
 };
 
 type Fields = MutableRefObject<FormField>[];
@@ -30,14 +31,31 @@ function getFormData(fields: Fields): FormData {
   return map;
 }
 
-const Form = ({ autocomplete, children, onSubmit, id }: Props) => {
-  const [fields] = useState<Fields>([]);
-  const context = useMemo(() => ({
+export type Listener = (name: string, error: ValidationErrors) => void;
+
+const Form = ({ autocomplete, children, onSubmit, id, className }: Props) => {
+  const fields: Fields = useMemo(() => [], []);
+  const listeners: Listener[] = useMemo(() => [], []);
+
+  // Move this to createFormContext?
+  const context: Context = useMemo(() => ({
     register(ref: MutableRefObject<FormField>) {
       fields.push(ref);
+
       return () => {
         const index = fields.indexOf(ref);
         fields.splice(index, 1);
+      };
+    },
+    dispatchError(name: string, error: ValidationErrors) {
+      listeners.forEach(Listener => Listener(name, error));
+    },
+    onFieldError(listener: Listener) {
+      listeners.push(listener);
+
+      return () => {
+        const index = listeners.indexOf(listener);
+        listeners.splice(index, 1);
       };
     },
   }), []);
@@ -46,6 +64,7 @@ const Form = ({ autocomplete, children, onSubmit, id }: Props) => {
     event.preventDefault();
 
     if (!validateFields(fields)) {
+      console.log('Some fields are invalid');
       return;
     }
 
@@ -61,6 +80,7 @@ const Form = ({ autocomplete, children, onSubmit, id }: Props) => {
         onSubmit={submit}
         noValidate
         id={id}
+        className={className}
       >
         {children}
       </form>
