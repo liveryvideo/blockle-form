@@ -1,40 +1,61 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, MutableRefObject } from 'react';
 
 import { FormContext } from 'context';
-import { createStore } from 'store/createStore';
-import { reducer } from 'store/reducer';
-import { getValueMap, isValid } from 'store/selectors';
-import { ValueMap, FormState } from 'types';
+import { FormData, FormField } from 'types';
 
 type Props = {
   autocomplete?: boolean,
   children?: React.ReactNode,
-  onSubmit: (values: ValueMap) => void,
+  onSubmit: (values: FormData) => void,
   id?: string,
 };
 
+type Fields = MutableRefObject<FormField>[];
+
+function validateFields(fields: Fields) {
+  console.log('validate', fields);
+
+  return fields.every(({ current }) => !!current.valid);
+}
+
+function getFormData(fields: Fields): FormData {
+  const map: FormData = {};
+
+  fields.forEach((ref) => {
+    const field = ref.current;
+
+    map[field.name] = field.computeValue ? field.computeValue(field.value) : field.value;
+  });
+
+  return map;
+}
+
 const Form = ({ autocomplete, children, onSubmit, id }: Props) => {
-  const store = useMemo(
-    () => createStore<FormState>(reducer),
-    [],
-  );
+  const [fields] = useState<Fields>([]);
+  const context = useMemo(() => ({
+    register(ref: MutableRefObject<FormField>) {
+      fields.push(ref);
+      return () => {
+        const index = fields.indexOf(ref);
+        fields.splice(index, 1);
+      };
+    },
+  }), []);
 
   const submit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const state = store.getState();
-
-    if (!isValid(state)) {
-      return console.log('Form invalid');
+    if (!validateFields(fields)) {
+      return;
     }
 
-    onSubmit(getValueMap(state));
+    const formData = getFormData(fields);
 
-    console.log('Form submit', getValueMap(state));
+    onSubmit(formData);
   };
 
   return (
-    <FormContext.Provider value={store}>
+    <FormContext.Provider value={context}>
       <form
         autoComplete={autocomplete ? 'on' : 'off'}
         onSubmit={submit}

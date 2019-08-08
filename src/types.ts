@@ -12,7 +12,7 @@ export type FieldProps<V = any> = {
   required?: boolean,
 };
 
-export type ValueMap = {
+export type FormData = {
   [key: string]: any;
 };
 
@@ -23,11 +23,12 @@ export type ValidationErrors = null | {
 export type FormField = {
   name: string,
   value: any,
-  invalid?: boolean,
-  disabled?: boolean,
+  valid?: boolean,
+  // disabled?: boolean,
   errors?: ValidationErrors,
   dirty?: boolean,
   touched?: boolean,
+  computeValue?: (value: any) => any,
 };
 
 export type FormState = {

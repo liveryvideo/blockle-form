@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { MutableRefObject } from 'react';
 
-import { Store } from 'store/createStore';
-import { Actions } from 'store/actions';
-import { FormState } from 'types';
+// export type IFormContext = Store<FormState, Actions>;
+export interface Context {
+  register: (ref: MutableRefObject<any>) => () => void;
+}
 
-export type IFormContext = Store<FormState, Actions>;
-
-export const FormContext = React.createContext<IFormContext>(null as any);
+export const FormContext = React.createContext<Context>(null as any);
