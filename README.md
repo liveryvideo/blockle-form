@@ -1,86 +1,92 @@
 # @blockle/form
 
-```jsx
-import { Form, FormError } from '@blockle/form';
-import Input from 'myComponents/Input';
+## Install
 
-const submit = () =>
-  new Promise(resolve => {
-    setTimeout(resolve, 1000);
-  });
+```bash
+yarn add @blockle/form
+```
+
+## Usage
+
+```tsx
+import React, { useState } from 'react';
+import Form, { BaseFieldProps } from '@blockle/form';
+
+interface FormData {
+  name: string;
+}
 
 const MyForm = () => {
-  const [isSubmitting, setSubmitting] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
+  const submit = async (formData: FormData) => {
+    setSending(true);
+
+    try {
+      await xhr.send(formData);
+    } catch(error) {
+      setErrorMessage(error.message);
+    }
+
+    setSending(false);
+  }
 
   return (
-    <Form
-      onSubmit={submit}
-    >
-      <Input
-        type="text"
-        name="firstName"
-        required
-      />
+    <Form onSubmit={submit}>
+      <Input name="name" type="text" required />
+      <ValidationWarning target="name" />
 
-      <VegetableSelect name="vegetable" required />
-
-      <FormError
-        for="vegetable"
-        render={(message) => (
-          <div>{message}</div>
-        )}
-      >
-
-      <submit type="submit" value="send" />
+      <button disabled={sending}>Submit</button>
     </Form>
   );
 }
-```
 
-## Custom form components
+interface InputProps extends BaseFieldProps<string> {
+  type: 'text' | 'password';
+  required: boolean;
+}
 
-```tsx
-import { useForm } from '@blockle/form';
-
-type Props = FormElementProps<string>;
-
-export const VegetableSelect = ({ name, value: propValue, required }) => {
-  const { value, setValue, invalid } = useForm<string>({
+// --
+const Input = ({ name, value, type, required }: InputProps) => {
+  const {value, touched, dirty, valid, validationMessage, setValue} = useForm({
     name,
-    value: propValue,
-    validate: (value: string) => {
-      if(required && !value) {
+    value,
+    validate(value) {
+      if(required && !value.trim()) {
         return 'required';
       }
 
       return null;
+    },
+    computeValue(value) {
+      return value;
     }
-  }); 
+  });
 
-  return (
-    <div>
-      <button
-        onClick={() => setValue('artichokes')}
-        className={value === 'artichokes' ? 'selected' : ''}
-      >
-        Artichokes
-      </button>
-      <button
-        onClick={() => setValue('broccoli')}
-        className={value === 'broccoli' ? 'selected' : ''}
-      >
-        Broccoli
-      </button>
-      <button
-        onClick={() => setValue('carrots')}
-        className={value === 'carrots' ? 'selected' : ''}
-      >
-        Carrots
-      </button>
+  // Update value
 
-      {(invalid === 'required') &&
-        <div>Please select an option</div>}
-    </div>
-  )
+  return (<input type={type} value={value} onInput={(event) => setValue(event.currentTarget.value)} />);
+}
+
+interface ValidationWarningProps {
+  target: string;
+}
+
+// --
+const ValidationWarning = ({ target }: ValidationWarningProps) => {
+  const { value, touched, dirty, valid, validationMessage } = useFormField(target);
+
+  if(valid) {
+    return null;
+  }
+
+  return <div>{validationMessage}</div>
+}
+```
+
+```ts
+interface BaseFieldProps<V> {
+  value: V;
+  name: string;
 }
 ```
