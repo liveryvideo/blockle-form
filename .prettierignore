@@ -1,0 +1,9 @@
+.*
+*.lock
+*.md
+*.sh
+*.svg
+*.yarn
+dist
+node_modules
+package-lock.json

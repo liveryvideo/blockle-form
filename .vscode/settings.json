@@ -1,5 +1,10 @@
 {
-  "eslint.enable": false,
-  "tslint.autoFixOnSave": true,
-  "tslint.enable": true
+  "files.exclude": {
+    "**/.rpt2_cache": true
+  },
+  "editor.formatOnSave": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "tslint.enable": false,
+  "eslint.autoFixOnSave": true,
+  "eslint.enable": true
 }

@@ -3,12 +3,13 @@
   "version": "0.0.1-alpha.3",
   "description": "Blockle Form",
   "scripts": {
-    "start": "npm run build:ts -- -w | npm run build:types -- -w",
-    "build": "rm -rf ./dist/ && npm run build:ts && npm run build:types",
     "build:ts": "rollup -c",
     "build:types": "tsc -d --emitDeclarationOnly",
-    "test": "jest",
-    "lint": "tslint -p tsconfig.json"
+    "build": "rm -rf ./dist/ && npm run build:ts && npm run build:types",
+    "format": "prettier --write \"**/*\"",
+    "lint": "eslint -p tsconfig.json",
+    "start": "npm run build:ts -- -w | npm run build:types -- -w",
+    "test": "jest"
   },
   "main": "dist/blockle-form.cjs.js",
   "module": "dist/blockle-form.esm.js",
@@ -21,14 +22,15 @@
   "author": "Niek Saarberg",
   "license": "MIT",
   "devDependencies": {
-    "@exmg/tslint-config": "^1.0.1",
     "@types/jest": "^24.0.11",
     "@types/react": "^16.7.18",
     "@types/react-dom": "^16.0.11",
+    "eslint-plugin-prettier": "^3.1.0",
     "jest": "^24.5.0",
     "jest-dom": "^3.0.0",
     "postcss-import": "^12.0.1",
     "postcss-preset-env": "^6.5.0",
+    "prettier": "^1.18.2",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
     "react-testing-library": "^6.0.0",
@@ -38,7 +40,6 @@
     "rollup-plugin-postcss": "^2.0.3",
     "rollup-plugin-typescript2": "^0.20.1",
     "ts-jest": "^24.0.0",
-    "tslint": "^5.12.0",
     "typescript": "^3.5.3"
   },
   "peerDependencies": {
