@@ -5,9 +5,7 @@ module.exports = wallaby => ({
     'src/**/*.snap',
     '!src/**/*.spec.ts?(x)',
   ],
-  tests: [
-    'src/**/*.spec.ts?(x)',
-  ],
+  tests: ['src/**/*.spec.ts?(x)'],
   env: {
     type: 'node',
     runner: 'node',

@@ -24,7 +24,10 @@ export const createInitialState = <V>(value: V) => ({
   value,
 });
 
-export const fieldReducer = (state = initialState, action: Actions): FieldReducer => {
+export const fieldReducer = (
+  state = initialState,
+  action: Actions,
+): FieldReducer => {
   switch (action.type) {
     case 'SET_VALUE':
       return {

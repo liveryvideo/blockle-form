@@ -1,7 +1,11 @@
 import { useContext, useEffect, useReducer, useRef } from 'react';
 
 import { FormContext } from 'context';
-import { fieldReducer, createInitialState, createFieldActions } from 'reducers/fieldReducer';
+import {
+  fieldReducer,
+  createInitialState,
+  createFieldActions,
+} from 'reducers/fieldReducer';
 
 interface UseForm<V> {
   name: string;
@@ -10,7 +14,7 @@ interface UseForm<V> {
   // computeValue?: (value: V) => any;
 }
 
-export const useForm = <V>({ name, value = null }: UseForm<V>) => {
+export const useForm = <V>({ name, value = null, validate }: UseForm<V>) => {
   const form = useContext(FormContext);
   const [state, dispatch] = useReducer(fieldReducer, createInitialState(value));
   const actions = createFieldActions(dispatch);

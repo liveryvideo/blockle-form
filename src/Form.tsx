@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, MutableRefObject } from 'react';
 import { FormContext } from 'context';
 import { FormContext as Context } from 'types';
 
@@ -10,14 +10,13 @@ interface Props {
 
 const Form = ({ children, className }: Props) => {
   // Create mutatable state
-  // const state = useMemo(() => [], []);
+  const state = useMemo(() => new Map<string, MutableRefObject<any>>(), []);
   const context: Context = {
     register(name, ref) {
-      // console.log('register');
-      console.log(name, ref);
+      state.set(name, ref);
 
       return () => {
-        // console.log('unregister');
+        state.delete(name);
       };
     },
   };
