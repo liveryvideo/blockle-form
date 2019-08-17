@@ -11,6 +11,11 @@
     "start": "npm run build:ts -- -w | npm run build:types -- -w",
     "test": "jest"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
+  },
   "main": "dist/blockle-form.cjs.js",
   "module": "dist/blockle-form.esm.js",
   "types": "dist/index.d.ts",
@@ -26,6 +31,7 @@
     "@types/react": "^16.7.18",
     "@types/react-dom": "^16.0.11",
     "eslint-plugin-prettier": "^3.1.0",
+    "husky": "^3.0.4",
     "jest": "^24.5.0",
     "jest-dom": "^3.0.0",
     "postcss-import": "^12.0.1",
