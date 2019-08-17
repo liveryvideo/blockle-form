@@ -1,12 +1,9 @@
-import React, { MutableRefObject } from 'react';
+import React from 'react';
 
-import { ValidationErrors } from 'types';
-import { Listener } from 'Form';
+import { FormContext as Context } from 'types';
 
-export interface Context {
-  register: (ref: MutableRefObject<any>) => () => void;
-  dispatchError: (name: string, error: ValidationErrors) =>  void;
-  onFieldError: (listener: Listener) => () => void;
-}
-
-export const FormContext = React.createContext<Context>(null as any);
+export const FormContext = React.createContext<Context>({
+  register: () => {
+    throw new Error('Forgot to wrap form element in <Form /> component?');
+  },
+});
