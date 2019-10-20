@@ -1,10 +1,21 @@
 {
-  "files.exclude": {
-    "**/.rpt2_cache": true
-  },
+  "tslint.enable": false,
   "editor.formatOnSave": true,
   "typescript.tsdk": "node_modules/typescript/lib",
-  "tslint.enable": false,
-  "eslint.autoFixOnSave": true,
-  "eslint.enable": true
+  "eslint.enable": true,
+  "prettier.requireConfig": true,
+  "stylelint.enable": true,
+  "css.validate": false,
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    {
+      "language": "typescript",
+      "autoFix": true
+    },
+    {
+      "language": "typescriptreact",
+      "autoFix": true
+    }
+  ]
 }
