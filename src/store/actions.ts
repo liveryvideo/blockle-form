@@ -17,18 +17,19 @@ export const createActionWithPayload = <T extends string, P>(
   payload,
 });
 
-export const init = (name: string, value: string) =>
-  createActionWithPayload('INIT', { name, value });
+export const init = <V>(name: string, value: V) => createActionWithPayload('INIT', { name, value });
 
-export const setValue = (name: string, value: string) =>
+export const setValue = <V>(name: string, value: V) =>
   createActionWithPayload('SET_VALUE', { name, value });
 
 export const setTouched = (name: string) => createActionWithPayload('SET_TOUCHED', { name });
 
-export const setValidity = (name: string, validationMessage: FieldState['validationMessage']) =>
-  createActionWithPayload('SET_VALIDITY', { name, validationMessage });
+export const setValidity = (
+  name: string,
+  validationMessage: FieldState<never>['validationMessage'],
+) => createActionWithPayload('SET_VALIDITY', { name, validationMessage });
 
-export const setDirty = (name: string, dirty: FieldState['dirty']) =>
+export const setDirty = (name: string, dirty: FieldState<never>['dirty']) =>
   createActionWithPayload('SET_DIRTY', { name, dirty });
 
 export type Actions = ReturnType<

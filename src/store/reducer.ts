@@ -2,7 +2,7 @@ import { Actions } from './actions';
 import { FieldState } from 'types';
 
 export type FormReducer = {
-  [type: string]: FieldState;
+  [type: string]: FieldState<unknown>;
 };
 
 const initialState: FormReducer = {};
@@ -41,7 +41,6 @@ export const formReducer = (state = initialState, action: Actions): FormReducer 
       };
 
     case 'SET_VALIDITY':
-      console.log('SET_VALIDITY', action);
       return {
         ...state,
         [action.payload.name]: {

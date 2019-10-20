@@ -2,25 +2,34 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { FormContext } from 'context';
 import { createStore } from 'store/createStore';
 import { FormReducer } from 'store/reducer';
+import { FormData } from 'types';
 
 type Props = {
-  onSubmit: (formData: any) => void | Promise<void>;
+  onSubmit: (formData: FormData) => void | Promise<void>;
   className?: string;
   autocomplete?: boolean;
   noValidate?: boolean;
-  render: (form: { valid: boolean; submitting: boolean }) => React.ReactNode;
+  render: (form: { invalid: boolean; submitting: boolean }) => React.ReactNode;
 }; // & React.HTMLAttributes<HTMLFormElement>;
 
 // selectors.ts
-const getFormData = (state: FormReducer) =>
-  Object.values(state).map(({ name, value }) => ({ name, value }));
+const getFormData = (state: FormReducer) => {
+  const values = Object.values(state).map(({ name, value }) => ({ name, value }));
+  const formData: FormData = {};
+
+  values.forEach(({ name, value }) => {
+    formData[name] = value;
+  });
+
+  return formData;
+};
 
 const isFormInvalid = (state: FormReducer) => Object.values(state).some(({ invalid }) => invalid);
 
-const Form = ({ render, className, autocomplete, onSubmit, noValidate }: Props) => {
+const Form = ({ render, className, autocomplete, onSubmit, noValidate = true }: Props) => {
   const store = useMemo(() => createStore(), []);
   const [submitting, setSubmitting] = useState(false);
-  const [valid, setValid] = useState(false);
+  const [invalid, setInvalid] = useState(false);
 
   // Listen to store updates
   useEffect(
@@ -29,7 +38,7 @@ const Form = ({ render, className, autocomplete, onSubmit, noValidate }: Props) 
         const state = store.getState();
         const isInvalid = isFormInvalid(state);
 
-        setValid(!isInvalid);
+        setInvalid(isInvalid);
       }),
     [],
   );
@@ -42,7 +51,7 @@ const Form = ({ render, className, autocomplete, onSubmit, noValidate }: Props) 
     const isInvalid = isFormInvalid(state);
 
     if (isInvalid) {
-      setValid(false);
+      setInvalid(true);
       return;
     }
 
@@ -61,7 +70,7 @@ const Form = ({ render, className, autocomplete, onSubmit, noValidate }: Props) 
         autoComplete={autocomplete ? 'on' : 'off'}
         noValidate={noValidate}
       >
-        {render({ submitting, valid })}
+        {render({ submitting, invalid })}
       </form>
     </FormContext.Provider>
   );
