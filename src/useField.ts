@@ -1,7 +1,7 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState, useRef } from 'react';
 
 import { FormContext } from './context';
-import { init, setValue, setTouched, setValidity, setDirty } from './store/actions';
+import { initField, setTouched, updateField, removeField } from './store/actions';
 import { FieldState } from './types';
 
 type Options<V> = {
@@ -9,74 +9,80 @@ type Options<V> = {
   value: V;
 };
 
-// const fieldStateDidChange = (state: FieldState, prevState: FieldState) =>
-//   state.value !== prevState.value ||
-//   state.validationMessage !== prevState.validationMessage ||
-//   state.dirty !== prevState.dirty ||
-//   state.touched !== prevState.touched;
+const stateDidChange = <V>(state: FieldState<V>, prevState: FieldState<V>) => {
+  if (
+    state.value !== prevState.value ||
+    state.dirty !== prevState.dirty ||
+    state.touched !== prevState.touched ||
+    state.validationMessage !== prevState.validationMessage
+  ) {
+    return true;
+  }
 
-export type UseField<V> = FieldState<V> & {
-  setValue: (value: V) => void;
-  setTouched: () => void;
-  // setValidity: (validationMessage: FieldState<never>['validationMessage']) => void;
+  return false;
 };
 
-export const useField = <V>(name: string, options: Options<V>): UseField<V> => {
+export const useField = <V>(name: string, options: Options<V>) => {
   const store = useContext(FormContext);
   const [state, setState] = useState<FieldState<V>>({
     name,
     dirty: false,
-    invalid: false,
     touched: false,
     validationMessage: null,
     value: options.value,
   });
+  const currentState = useRef(state);
 
+  // Update value whenever value (given by props) changes
   useEffect(() => {
-    console.log('update', name, options.value);
-
-    store.dispatch(setValue<V>(name, options.value));
-    store.dispatch(setDirty(name, options.value !== options.value));
-
-    if (options.validate) {
-      store.dispatch(setValidity(name, options.validate(options.value)));
-    }
+    store.dispatch(
+      updateField(name, {
+        value: options.value,
+        dirty: false,
+        validationMessage: options.validate(options.value),
+      }),
+    );
   }, [options.value]);
 
   useEffect(() => {
+    // Update local state
     const unsubscribe = store.subscribe(() => {
-      const nextState = store.getState();
+      const prevState = currentState.current;
+      const nextState = store.getState()[name] as FieldState<V>;
 
-      // if (fieldStateDidChange(nextState[name], state)) {
-      setState(nextState[name] as FieldState<V>);
-      // }
+      if (prevState && nextState && stateDidChange<V>(nextState, prevState)) {
+        setState(nextState);
+        currentState.current = nextState;
+      }
     });
 
-    store.dispatch(init(name, options.value));
+    store.dispatch(
+      initField(name, {
+        value: options.value,
+        validationMessage: options.validate(options.value),
+      }),
+    );
 
-    if (options.validate) {
-      store.dispatch(setValidity(name, options.validate(options.value)));
-    }
-
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+      store.dispatch(removeField(name));
+    };
   }, [name]);
 
   return {
     ...state,
     invalid: state.validationMessage !== null,
-    setValue(value) {
-      store.dispatch(setValue<V>(name, value));
-      store.dispatch(setDirty(name, value !== options.value));
-
-      if (options.validate) {
-        store.dispatch(setValidity(name, options.validate(value)));
-      }
+    setValue(value: V) {
+      store.dispatch(
+        updateField(name, {
+          value,
+          dirty: value !== options.value,
+          validationMessage: options.validate(value),
+        }),
+      );
     },
     setTouched() {
       store.dispatch(setTouched(name));
     },
-    // setValidity(validationMessage) {
-    //   store.dispatch(setValidity(name, validationMessage));
-    // },
   };
 };

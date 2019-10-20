@@ -13,14 +13,12 @@ type Props = {
   render: (form: { invalid: boolean; submitting: boolean }) => React.ReactNode;
 }; // & React.HTMLAttributes<HTMLFormElement>;
 
-// selectors.ts
-
 const Form = ({ render, className, autocomplete, onSubmit, noValidate = true }: Props) => {
   const store = useMemo(() => createStore(), []);
   const [submitting, setSubmitting] = useState(false);
   const [invalid, setInvalid] = useState(false);
 
-  // Listen to store updates
+  // Listen to store updates to set validity
   useEffect(() => {
     const listener = () => {
       const state = store.getState();
@@ -34,7 +32,7 @@ const Form = ({ render, className, autocomplete, onSubmit, noValidate = true }: 
     return store.subscribe(() => listener());
   }, []);
 
-  async function submit(event: React.SyntheticEvent<HTMLFormElement>) {
+  function submit(event: React.SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const state = store.getState();
@@ -48,9 +46,14 @@ const Form = ({ render, className, autocomplete, onSubmit, noValidate = true }: 
 
     setSubmitting(true);
 
-    await onSubmit(formData);
+    const result = onSubmit(formData);
 
-    setSubmitting(false);
+    // TODO Use await and ship without polyfill?
+    if (result && result.then) {
+      result.then(() => setSubmitting(false));
+    } else {
+      setSubmitting(false);
+    }
   }
 
   return (

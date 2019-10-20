@@ -1,7 +1,6 @@
 export type FieldState<V> = {
   name: string;
   dirty: boolean;
-  invalid: boolean;
   touched: boolean;
   validationMessage: null | string;
   value: V;

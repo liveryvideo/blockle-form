@@ -15,19 +15,18 @@ export const formReducer = (state = initialState, action: Actions): FormReducer 
         [action.payload.name]: {
           name: action.payload.name,
           dirty: false,
-          invalid: false,
           touched: false,
-          validationMessage: null,
-          value: action.payload.value,
+          validationMessage: action.payload.state.validationMessage,
+          value: action.payload.state.value,
         },
       };
 
-    case 'SET_VALUE':
+    case 'UPDATE_FIELD':
       return {
         ...state,
         [action.payload.name]: {
           ...state[action.payload.name],
-          value: action.payload.value,
+          ...action.payload.state,
         },
       };
 
@@ -40,15 +39,12 @@ export const formReducer = (state = initialState, action: Actions): FormReducer 
         },
       };
 
-    case 'SET_VALIDITY':
-      return {
-        ...state,
-        [action.payload.name]: {
-          ...state[action.payload.name],
-          validationMessage: action.payload.validationMessage,
-          invalid: action.payload.validationMessage !== null,
-        },
-      };
+    case 'REMOVE_FIELD':
+      const nextState = { ...state };
+
+      delete nextState[action.payload];
+
+      return nextState;
 
     default:
       return state;

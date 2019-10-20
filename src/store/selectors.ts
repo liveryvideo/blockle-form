@@ -13,4 +13,4 @@ export const getFormData = (state: FormReducer) => {
 };
 
 export const isFormInvalid = (state: FormReducer) =>
-  Object.values(state).some(({ invalid }) => invalid);
+  Object.values(state).some(({ validationMessage }) => validationMessage !== null);

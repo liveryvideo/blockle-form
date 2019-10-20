@@ -212,5 +212,40 @@ describe('Form', () => {
     expect(getByText('INVALID')).toBeTruthy();
   });
 
+  it('should handle async submit action', async () => {
+    jest.useFakeTimers();
+
+    const { getByText } = render(
+      <Form
+        onSubmit={() => new Promise(resolve => setTimeout(resolve, 200))}
+        render={({ submitting }) => (
+          <>
+            <Input name="npt" placeholder="name" value="test" />
+            <button type="submit" disabled={submitting}>
+              submit
+            </button>
+          </>
+        )}
+      />,
+    );
+
+    const button = getByText('submit');
+
+    expect(button).toBeEnabled();
+
+    // Submit
+    fireEvent.click(button);
+
+    // Submit should be disabled when called with async callback
+    expect(button).toBeDisabled();
+
+    jest.runAllImmediates();
+
+    // Submit is enabled again when callback finished
+    expect(button).toBeDisabled();
+  });
+
   // it should remove unmounted field from store
+
+  // it should show field errors by pressing submit
 });

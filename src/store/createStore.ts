@@ -14,14 +14,13 @@ export const createStore = () => {
 
     return () => {
       const index = listeners.indexOf(listener);
-      listeners.slice(index, 1);
+      listeners.splice(index, 1);
     };
   };
 
   const dispatch = (action: Actions) => {
     currentState = formReducer(currentState, action);
 
-    // Queue updates? With raf / empty timeout?
     listeners.forEach(listener => listener());
   };
 

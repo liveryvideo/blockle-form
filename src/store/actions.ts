@@ -1,10 +1,6 @@
 import { FieldState } from 'types';
 
-export interface Action<T extends string> {
-  type: T;
-}
-
-export interface ActionWithPayload<T extends string, P> extends Action<T> {
+export interface ActionWithPayload<T extends string, P> {
   type: T;
   payload: P;
 }
@@ -17,21 +13,23 @@ export const createActionWithPayload = <T extends string, P>(
   payload,
 });
 
-export const init = <V>(name: string, value: V) => createActionWithPayload('INIT', { name, value });
+// Initialize field state
+export const initField = <V>(
+  name: string,
+  state: Pick<FieldState<V>, 'value' | 'validationMessage'>,
+) => createActionWithPayload('INIT', { name, state });
 
-export const setValue = <V>(name: string, value: V) =>
-  createActionWithPayload('SET_VALUE', { name, value });
+// Update field state
+export const updateField = <V>(name: string, state: Partial<FieldState<V>>) =>
+  createActionWithPayload('UPDATE_FIELD', { name, state });
 
+// Field is touched
 export const setTouched = (name: string) => createActionWithPayload('SET_TOUCHED', { name });
 
-export const setValidity = (
-  name: string,
-  validationMessage: FieldState<never>['validationMessage'],
-) => createActionWithPayload('SET_VALIDITY', { name, validationMessage });
+// Remove field state
+export const removeField = (name: string) => createActionWithPayload('REMOVE_FIELD', name);
 
-export const setDirty = (name: string, dirty: FieldState<never>['dirty']) =>
-  createActionWithPayload('SET_DIRTY', { name, dirty });
-
+// List of actions for formReducer
 export type Actions = ReturnType<
-  typeof init | typeof setValue | typeof setTouched | typeof setValidity | typeof setDirty
+  typeof initField | typeof updateField | typeof setTouched | typeof removeField
 >;
