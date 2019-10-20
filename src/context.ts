@@ -1,5 +1,5 @@
 import React from 'react';
-import { createStore } from 'store/createStore';
+import { createStore } from './store/createStore';
 
 export const FormContext = React.createContext<ReturnType<typeof createStore>>({
   getState: () => ({}),

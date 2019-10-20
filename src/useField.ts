@@ -1,8 +1,8 @@
 import { useContext, useEffect, useState } from 'react';
 
-import { FormContext } from 'context';
-import { init, setValue, setTouched, setValidity, setDirty } from 'store/actions';
-import { FieldState } from 'types';
+import { FormContext } from './context';
+import { init, setValue, setTouched, setValidity, setDirty } from './store/actions';
+import { FieldState } from './types';
 
 type Options<V> = {
   validate: (value: V) => null | string;
@@ -15,7 +15,13 @@ type Options<V> = {
 //   state.dirty !== prevState.dirty ||
 //   state.touched !== prevState.touched;
 
-export const useField = <V>(name: string, options: Options<V>) => {
+export type UseField<V> = FieldState<V> & {
+  setValue: (value: V) => void;
+  setTouched: () => void;
+  // setValidity: (validationMessage: FieldState<never>['validationMessage']) => void;
+};
+
+export const useField = <V>(name: string, options: Options<V>): UseField<V> => {
   const store = useContext(FormContext);
   const [state, setState] = useState<FieldState<V>>({
     name,
@@ -25,6 +31,17 @@ export const useField = <V>(name: string, options: Options<V>) => {
     validationMessage: null,
     value: options.value,
   });
+
+  useEffect(() => {
+    console.log('update', name, options.value);
+
+    store.dispatch(setValue<V>(name, options.value));
+    store.dispatch(setDirty(name, options.value !== options.value));
+
+    if (options.validate) {
+      store.dispatch(setValidity(name, options.validate(options.value)));
+    }
+  }, [options.value]);
 
   useEffect(() => {
     const unsubscribe = store.subscribe(() => {
@@ -37,13 +54,17 @@ export const useField = <V>(name: string, options: Options<V>) => {
 
     store.dispatch(init(name, options.value));
 
+    if (options.validate) {
+      store.dispatch(setValidity(name, options.validate(options.value)));
+    }
+
     return unsubscribe;
   }, [name]);
 
   return {
     ...state,
     invalid: state.validationMessage !== null,
-    setValue: (value: V) => {
+    setValue(value) {
       store.dispatch(setValue<V>(name, value));
       store.dispatch(setDirty(name, value !== options.value));
 
@@ -51,11 +72,11 @@ export const useField = <V>(name: string, options: Options<V>) => {
         store.dispatch(setValidity(name, options.validate(value)));
       }
     },
-    setTouched: (name: string) => {
+    setTouched() {
       store.dispatch(setTouched(name));
     },
-    setValidity: (validationMessage: FieldState<never>['validationMessage']) => {
-      store.dispatch(setValidity(name, validationMessage));
-    },
+    // setValidity(validationMessage) {
+    //   store.dispatch(setValidity(name, validationMessage));
+    // },
   };
 };

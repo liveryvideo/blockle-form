@@ -1,8 +1,9 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { FormContext } from 'context';
-import { createStore } from 'store/createStore';
-import { FormReducer } from 'store/reducer';
-import { FormData } from 'types';
+
+import { FormContext } from './context';
+import { createStore } from './store/createStore';
+import { FormData } from './types';
+import { isFormInvalid, getFormData } from './store/selectors';
 
 type Props = {
   onSubmit: (formData: FormData) => void | Promise<void>;
@@ -13,18 +14,6 @@ type Props = {
 }; // & React.HTMLAttributes<HTMLFormElement>;
 
 // selectors.ts
-const getFormData = (state: FormReducer) => {
-  const values = Object.values(state).map(({ name, value }) => ({ name, value }));
-  const formData: FormData = {};
-
-  values.forEach(({ name, value }) => {
-    formData[name] = value;
-  });
-
-  return formData;
-};
-
-const isFormInvalid = (state: FormReducer) => Object.values(state).some(({ invalid }) => invalid);
 
 const Form = ({ render, className, autocomplete, onSubmit, noValidate = true }: Props) => {
   const store = useMemo(() => createStore(), []);
@@ -32,16 +21,18 @@ const Form = ({ render, className, autocomplete, onSubmit, noValidate = true }: 
   const [invalid, setInvalid] = useState(false);
 
   // Listen to store updates
-  useEffect(
-    () =>
-      store.subscribe(() => {
-        const state = store.getState();
-        const isInvalid = isFormInvalid(state);
+  useEffect(() => {
+    const listener = () => {
+      const state = store.getState();
+      const isInvalid = isFormInvalid(state);
 
-        setInvalid(isInvalid);
-      }),
-    [],
-  );
+      setInvalid(isInvalid);
+    };
+
+    listener();
+
+    return store.subscribe(() => listener());
+  }, []);
 
   async function submit(event: React.SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
