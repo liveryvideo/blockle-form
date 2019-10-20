@@ -1,15 +1,8 @@
 import React from 'react';
+import { createStore } from 'store/createStore';
 
-import { FormContext as Context } from 'types';
-
-export const FormContext = React.createContext<Context>({
-  register: () => {
-    throw new Error('Forgot to wrap form element in <Form /> component?');
-  },
-  subscribe: () => {
-    throw new Error('Forgot to wrap form element in <Form /> component?');
-  },
-  notify: () => {
-    throw new Error('Forgot to wrap form element in <Form /> component?');
-  },
+export const FormContext = React.createContext<ReturnType<typeof createStore>>({
+  getState: () => ({}),
+  dispatch: () => {},
+  subscribe: () => () => {},
 });

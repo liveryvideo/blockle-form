@@ -1,83 +1,67 @@
-import React, { useMemo, MutableRefObject } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { FormContext } from 'context';
-import { FormContext as Context, FormFieldListener, FormData } from 'types';
+import { createStore } from 'store/createStore';
+import { FormReducer } from 'store/reducer';
 
-interface Props {
-  autocomplete?: boolean;
-  children: React.ReactNode;
+type Props = {
+  onSubmit: (formData: any) => void | Promise<void>;
   className?: string;
+  autocomplete?: boolean;
   noValidate?: boolean;
-  onSubmit: (formData: FormData) => void;
-}
+  render: (form: { valid: boolean; submitting: boolean }) => React.ReactNode;
+}; // & React.HTMLAttributes<HTMLFormElement>;
 
-const Form = ({
-  autocomplete,
-  children,
-  className,
-  noValidate = true,
-  onSubmit,
-}: Props) => {
-  // Create mutatable state
-  const state = useMemo(
-    () => new Map<string, [MutableRefObject<any>, () => boolean]>(),
+// selectors.ts
+const getFormData = (state: FormReducer) =>
+  Object.values(state).map(({ name, value }) => ({ name, value }));
+
+const isFormInvalid = (state: FormReducer) => Object.values(state).some(({ invalid }) => invalid);
+
+const Form = ({ render, className, autocomplete, onSubmit, noValidate }: Props) => {
+  const store = useMemo(() => createStore(), []);
+  const [submitting, setSubmitting] = useState(false);
+  const [valid, setValid] = useState(false);
+
+  // Listen to store updates
+  useEffect(
+    () =>
+      store.subscribe(() => {
+        const state = store.getState();
+        const isInvalid = isFormInvalid(state);
+
+        setValid(!isInvalid);
+      }),
     [],
   );
-  const listeners: FormFieldListener[] = useMemo(() => [], []);
-  const context: Context = {
-    register({ name, stateRef, validate }) {
-      state.set(name, [stateRef, validate]);
 
-      return () => {
-        state.delete(name);
-      };
-    },
-    subscribe(listener) {
-      listeners.push(listener);
-
-      return () => {
-        const index = listeners.indexOf(listener);
-        listeners.splice(index, 1);
-      };
-    },
-    notify(name, state) {
-      listeners.forEach(listener => listener(name, state));
-    },
-  };
-
-  const submit = (event: React.SyntheticEvent<HTMLFormElement>) => {
-    let isValid = true;
-
+  async function submit(event: React.SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    state.forEach(([, validate]) => {
-      if (!validate()) {
-        isValid = false;
-      }
-    });
+    const state = store.getState();
+    const formData = getFormData(state);
+    const isInvalid = isFormInvalid(state);
 
-    if (!isValid) {
-      console.log('Form invalid');
+    if (isInvalid) {
+      setValid(false);
       return;
     }
 
-    const formData: FormData = {};
+    setSubmitting(true);
 
-    state.forEach(([stateRef], name) => {
-      formData[name] = stateRef.current.value;
-    });
+    await onSubmit(formData);
 
-    onSubmit(formData);
-  };
+    setSubmitting(false);
+  }
 
   return (
-    <FormContext.Provider value={context}>
+    <FormContext.Provider value={store}>
       <form
         className={className}
         onSubmit={submit}
         autoComplete={autocomplete ? 'on' : 'off'}
         noValidate={noValidate}
       >
-        {children}
+        {render({ submitting, valid })}
       </form>
     </FormContext.Provider>
   );
