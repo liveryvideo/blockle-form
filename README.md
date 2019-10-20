@@ -48,7 +48,7 @@ interface InputProps extends BaseFieldProps<string> {
 
 // --
 const Input = ({ name, value, type, required }: InputProps) => {
-  const {value, touched, dirty, valid, validationMessage, setValue} = useForm({
+  const {value, touched, dirty, valid, validationMessage, setValue, setTouched} = useForm({
     name,
     value,
     validate(value) {
@@ -65,7 +65,7 @@ const Input = ({ name, value, type, required }: InputProps) => {
 
   // Update value
 
-  return (<input type={type} value={value} onInput={(event) => setValue(event.currentTarget.value)} />);
+  return (<input type={type} value={value} onInput={(event) => setValue(event.currentTarget.value)} onFocus={setTouched} />);
 }
 
 interface ValidationWarningProps {
