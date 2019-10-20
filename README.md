@@ -10,46 +10,45 @@ yarn add @blockle/form
 
 ```tsx
 import React, { useState } from 'react';
-import Form, { BaseFieldProps } from '@blockle/form';
+import { Form, useField, FieldProps } from '@blockle/form';
 
 interface FormData {
   name: string;
 }
 
 const MyForm = () => {
-  const [sending, setSending] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const submit = async (formData: FormData) => {
-    setSending(true);
-
     try {
       await xhr.send(formData);
     } catch(error) {
       setErrorMessage(error.message);
     }
-
-    setSending(false);
   }
 
   return (
-    <Form onSubmit={submit}>
-      <Input name="name" type="text" required />
-      <ValidationWarning target="name" />
+    <Form
+      onSubmit={submit}
+      render={({ invalid, submitting }) => (
+        <Input name="name" type="text" required />
 
-      <button disabled={sending}>Submit</button>
-    </Form>
+        {errorMessage
+          && <div>{errorMessage}</div>}
+
+        <button disabled={invalid || submitting}>Submit</button>
+      )}
+    />
   );
 }
 
-interface InputProps extends BaseFieldProps<string> {
+// Input.tsx
+interface InputProps extends FieldProps<string> {
   type: 'text' | 'password';
   required: boolean;
 }
 
-// --
 const Input = ({ name, value, type, required }: InputProps) => {
-  const {value, touched, dirty, valid, validationMessage, setValue, setTouched} = useForm({
-    name,
+  const field = useField<string>(name, {
     value,
     validate(value) {
       if(required && !value.trim()) {
@@ -57,36 +56,16 @@ const Input = ({ name, value, type, required }: InputProps) => {
       }
 
       return null;
-    },
-    computeValue(value) {
-      return value;
     }
   });
 
-  // Update value
-
-  return (<input type={type} value={value} onInput={(event) => setValue(event.currentTarget.value)} onFocus={setTouched} />);
-}
-
-interface ValidationWarningProps {
-  target: string;
-}
-
-// --
-const ValidationWarning = ({ target }: ValidationWarningProps) => {
-  const { value, touched, dirty, valid, validationMessage } = useFormField(target);
-
-  if(valid) {
-    return null;
-  }
-
-  return <div>{validationMessage}</div>
-}
-```
-
-```ts
-interface BaseFieldProps<V> {
-  value: V;
-  name: string;
+  return (
+    <input
+      type={type}
+      value={value}
+      onChange={(event) => setValue(event.currentTarget.value)}
+      onFocus={setTouched}
+    />
+  );
 }
 ```
