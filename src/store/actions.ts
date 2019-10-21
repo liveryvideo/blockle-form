@@ -1,4 +1,4 @@
-import { FieldState } from 'types';
+import { FieldState } from '../types';
 
 export interface ActionWithPayload<T extends string, P> {
   type: T;

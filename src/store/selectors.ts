@@ -1,5 +1,5 @@
 import { FormReducer } from './reducer';
-import { FormData } from './../types';
+import { FormData } from '../types';
 
 export const getFormData = (state: FormReducer) => {
   const values = Object.values(state).map(({ name, value }) => ({ name, value }));

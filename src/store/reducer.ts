@@ -1,5 +1,5 @@
 import { Actions } from './actions';
-import { FieldState } from 'types';
+import { FieldState } from '../types';
 
 export type FormReducer = {
   [type: string]: FieldState<unknown>;
@@ -45,7 +45,7 @@ export const formReducer = (state = initialState, action: Actions): FormReducer 
 
       keys.forEach(key => {
         const field = state[key];
-        nextState[key] = { ...field, touched: true };
+        nextState[key] = field.touched ? field : { ...field, touched: true };
       });
 
       return nextState;
