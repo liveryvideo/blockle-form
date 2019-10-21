@@ -62,9 +62,9 @@ const Input = ({ name, value, type, required }: InputProps) => {
   return (
     <input
       type={type}
-      value={value}
-      onChange={(event) => setValue(event.currentTarget.value)}
-      onFocus={setTouched}
+      value={field.value}
+      onChange={(event) => field.setValue(event.currentTarget.value)}
+      onFocus={field.setTouched}
     />
   );
 }
