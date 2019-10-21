@@ -11,6 +11,4 @@ export type FieldProps<V> = {
   value?: V;
 };
 
-export type FormData = {
-  [key: string]: unknown;
-};
+export type FormData = any;

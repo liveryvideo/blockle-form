@@ -22,19 +22,23 @@ const stateDidChange = <V>(state: FieldState<V>, prevState: FieldState<V>) => {
   return false;
 };
 
-export const useField = <V>(name: string, options: Options<V>) => {
+export const useField = <V>(name: string, options?: Options<V>) => {
   const store = useContext(FormContext);
   const [state, setState] = useState<FieldState<V>>({
     name,
     dirty: false,
     touched: false,
     validationMessage: null,
-    value: options.value,
+    value: options ? options.value : (undefined as any),
   });
   const currentState = useRef(state);
 
   // Update value whenever value (given by props) changes
   useEffect(() => {
+    if (!options) {
+      return;
+    }
+
     store.dispatch(
       updateField(name, {
         value: options.value,
@@ -42,7 +46,7 @@ export const useField = <V>(name: string, options: Options<V>) => {
         validationMessage: options.validate(options.value),
       }),
     );
-  }, [options.value]);
+  }, [options && JSON.stringify(options.value)]);
 
   useEffect(() => {
     // Update local state
@@ -56,15 +60,19 @@ export const useField = <V>(name: string, options: Options<V>) => {
       }
     });
 
-    store.dispatch(
-      initField(name, {
-        value: options.value,
-        validationMessage: options.validate(options.value),
-      }),
-    );
+    if (options) {
+      store.dispatch(
+        initField(name, {
+          value: options.value,
+          validationMessage: options.validate(options.value),
+        }),
+      );
+    }
 
     return () => {
       unsubscribe();
+
+      // TODO How to handle "removeField" when multiple components have the same name?
       store.dispatch(removeField(name));
     };
   }, [name]);
@@ -73,11 +81,16 @@ export const useField = <V>(name: string, options: Options<V>) => {
     ...state,
     invalid: state.validationMessage !== null,
     setValue(value: V) {
+      if (!options) {
+        return;
+      }
+
       store.dispatch(
         updateField(name, {
           value,
           dirty: value !== options.value,
           validationMessage: options.validate(value),
+          touched: true,
         }),
       );
     },

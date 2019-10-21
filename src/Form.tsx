@@ -4,6 +4,7 @@ import { FormContext } from './context';
 import { createStore } from './store/createStore';
 import { FormData } from './types';
 import { isFormInvalid, getFormData } from './store/selectors';
+import { setTouchedAll } from './store/actions';
 
 type Props = {
   onSubmit: (formData: FormData) => void | Promise<void>;
@@ -34,6 +35,9 @@ const Form = ({ render, className, autocomplete, onSubmit, noValidate = true }: 
 
   function submit(event: React.SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    // Set all fields to touched to display errors
+    store.dispatch(setTouchedAll());
 
     const state = store.getState();
     const formData = getFormData(state);

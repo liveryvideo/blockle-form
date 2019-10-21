@@ -29,7 +29,14 @@ export const setTouched = (name: string) => createActionWithPayload('SET_TOUCHED
 // Remove field state
 export const removeField = (name: string) => createActionWithPayload('REMOVE_FIELD', name);
 
+// Remove field state
+export const setTouchedAll = () => ({ type: 'SET_TOUCHED_ALL' } as const);
+
 // List of actions for formReducer
 export type Actions = ReturnType<
-  typeof initField | typeof updateField | typeof setTouched | typeof removeField
+  | typeof initField
+  | typeof updateField
+  | typeof setTouched
+  | typeof removeField
+  | typeof setTouchedAll
 >;

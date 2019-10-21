@@ -39,6 +39,18 @@ export const formReducer = (state = initialState, action: Actions): FormReducer 
         },
       };
 
+    case 'SET_TOUCHED_ALL': {
+      const keys = Object.keys(state);
+      const nextState: FormReducer = {};
+
+      keys.forEach(key => {
+        const field = state[key];
+        nextState[key] = { ...field, touched: true };
+      });
+
+      return nextState;
+    }
+
     case 'REMOVE_FIELD':
       const nextState = { ...state };
 
