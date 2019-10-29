@@ -2,9 +2,10 @@ import { useState, useRef, useEffect, useContext } from 'react';
 
 import { FieldState } from './types';
 import { FormContext } from './context';
+import { globalStore } from './globalStore';
 
 export const useFieldState = <V = unknown>(name: string, initialValue?: any) => {
-  const store = useContext(FormContext);
+  const store = useContext(FormContext) || globalStore;
   const [state, setState] = useState<FieldState<V>>({
     name,
     dirty: false,

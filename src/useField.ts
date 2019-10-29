@@ -1,8 +1,10 @@
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 
 import { FormContext } from './context';
 import { initField, setTouched, updateField, removeField } from './store/actions';
 import { useFieldState } from './useFieldState';
+import { globalStore } from './globalStore';
+import { FieldState } from './types';
 
 type Options<V> = {
   validate: (value: V) => null | string;
@@ -11,7 +13,8 @@ type Options<V> = {
 
 export const useField = <V>(name: string, options: Options<V>) => {
   const state = useFieldState<V>(name, options.value);
-  const store = useContext(FormContext);
+  const store = useContext(FormContext) || globalStore;
+  const initialCall = useRef(true);
   const setValue = (value: V) => {
     store.dispatch(
       updateField(name, {
@@ -23,14 +26,14 @@ export const useField = <V>(name: string, options: Options<V>) => {
     );
   };
 
-  // Update value whenever value (given by props) changes
-  // Check is done with JSON.stringify to compare objects etc
-  useEffect(() => {
-    setValue(options.value);
-  }, [options && JSON.stringify(options.value)]);
-
   // Init store state
   useEffect(() => {
+    const state = store.getState()[name] as FieldState<V>;
+
+    if (state) {
+      return;
+    }
+
     store.dispatch(
       initField(name, {
         value: options.value,
@@ -43,6 +46,16 @@ export const useField = <V>(name: string, options: Options<V>) => {
       store.dispatch(removeField(name));
     };
   }, [name]);
+
+  // Update value whenever value (given by props) changes
+  // Check is done with JSON.stringify to compare objects etc
+  useEffect(() => {
+    if (!initialCall.current) {
+      setValue(options.value);
+    }
+
+    initialCall.current = false;
+  }, [JSON.stringify(options.value)]);
 
   return {
     ...state,
