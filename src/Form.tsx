@@ -6,15 +6,21 @@ import { FormData } from './types';
 import { isFormInvalid, getFormData } from './store/selectors';
 import { setTouchedAll } from './store/actions';
 
-type Props = {
+interface Props extends React.HTMLAttributes<HTMLFormElement> {
   onSubmit: (formData: FormData) => void | Promise<void>;
-  className?: string;
-  autocomplete?: boolean;
   noValidate?: boolean;
+  autoComplete?: boolean;
   render: (form: { invalid: boolean; submitting: boolean }) => React.ReactNode;
-}; // & React.HTMLAttributes<HTMLFormElement>;
+}
 
-const Form = ({ render, className, autocomplete, onSubmit, noValidate = true }: Props) => {
+const Form = ({
+  render,
+  className,
+  autoComplete,
+  onSubmit,
+  noValidate = true,
+  ...props
+}: Props) => {
   const store = useMemo(() => createStore(), []);
   const [submitting, setSubmitting] = useState(false);
   const [invalid, setInvalid] = useState(false);
@@ -52,7 +58,6 @@ const Form = ({ render, className, autocomplete, onSubmit, noValidate = true }: 
 
     const result = onSubmit(formData);
 
-    // TODO Use await and ship without polyfill?
     if (result && result.then) {
       result.then(() => setSubmitting(false));
     } else {
@@ -65,8 +70,9 @@ const Form = ({ render, className, autocomplete, onSubmit, noValidate = true }: 
       <form
         className={className}
         onSubmit={submit}
-        autoComplete={autocomplete ? 'on' : 'off'}
+        autoComplete={autoComplete ? 'on' : 'off'}
         noValidate={noValidate}
+        {...props}
       >
         {render({ submitting, invalid })}
       </form>
