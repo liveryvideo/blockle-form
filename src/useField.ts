@@ -9,6 +9,7 @@ import { FieldState } from './types';
 type Options<V> = {
   validate: (value: V) => null | string;
   value: V;
+  onChange?: (value: V) => void;
 };
 
 export const useField = <V>(name: string, options: Options<V>) => {
@@ -24,6 +25,10 @@ export const useField = <V>(name: string, options: Options<V>) => {
         touched: true,
       }),
     );
+
+    if (options.onChange) {
+      options.onChange(value);
+    }
   };
 
   // Init store state
