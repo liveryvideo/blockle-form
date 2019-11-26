@@ -22,7 +22,6 @@ export const useField = <V>(name: string, options: Options<V>) => {
         value,
         dirty: value !== options.value,
         validationMessage: options.validate(value),
-        touched: true,
       }),
     );
 
