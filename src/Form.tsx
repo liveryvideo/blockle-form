@@ -58,8 +58,14 @@ const Form = ({
 
     const result = onSubmit(formData);
 
+    // Handle promises
     if (result && result.then) {
-      result.then(() => setSubmitting(false));
+      result
+        .then(() => setSubmitting(false))
+        .catch(error => {
+          setSubmitting(false);
+          throw error;
+        });
     } else {
       setSubmitting(false);
     }
