@@ -1,47 +1,86 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 
-import { FormContext } from 'context';
-import { createStore } from 'store/createStore';
-import { reducer } from 'store/reducer';
-import { getValueMap, isValid } from 'store/selectors';
-import { ValueMap, FormState } from 'types';
+import { FormContext } from './context';
+import { createStore } from './store/createStore';
+import { FormData } from './types';
+import { isFormInvalid, getFormData } from './store/selectors';
+import { setTouchedAll } from './store/actions';
 
-type Props = {
-  autocomplete?: boolean,
-  children?: React.ReactNode,
-  onSubmit: (values: ValueMap) => void,
-  id?: string,
-};
+interface Props extends React.HTMLAttributes<HTMLFormElement> {
+  onSubmit: (formData: FormData) => void | Promise<void>;
+  noValidate?: boolean;
+  autoComplete?: boolean;
+  render: (form: { invalid: boolean; submitting: boolean }) => React.ReactNode;
+}
 
-const Form = ({ autocomplete, children, onSubmit, id }: Props) => {
-  const store = useMemo(
-    () => createStore<FormState>(reducer),
-    [],
-  );
+const Form = ({
+  render,
+  className,
+  autoComplete,
+  onSubmit,
+  noValidate = true,
+  ...props
+}: Props) => {
+  const store = useMemo(() => createStore(), []);
+  const [submitting, setSubmitting] = useState(false);
+  const [invalid, setInvalid] = useState(false);
 
-  const submit = (event: React.SyntheticEvent<HTMLFormElement>) => {
+  // Listen to store updates to set validity
+  useEffect(() => {
+    const listener = () => {
+      const state = store.getState();
+      const isInvalid = isFormInvalid(state);
+
+      setInvalid(isInvalid);
+    };
+
+    listener();
+
+    return store.subscribe(() => listener());
+  }, []);
+
+  function submit(event: React.SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const state = store.getState();
+    // Set all fields to touched to display errors
+    store.dispatch(setTouchedAll());
 
-    if (!isValid(state)) {
-      return console.log('Form invalid');
+    const state = store.getState();
+    const formData = getFormData(state);
+    const isInvalid = isFormInvalid(state);
+
+    if (isInvalid) {
+      setInvalid(true);
+      return;
     }
 
-    onSubmit(getValueMap(state));
+    setSubmitting(true);
 
-    console.log('Form submit', getValueMap(state));
-  };
+    const result = onSubmit(formData);
+
+    // Handle promises
+    if (result && result.then) {
+      result
+        .then(() => setSubmitting(false))
+        .catch(error => {
+          setSubmitting(false);
+          throw error;
+        });
+    } else {
+      setSubmitting(false);
+    }
+  }
 
   return (
     <FormContext.Provider value={store}>
       <form
-        autoComplete={autocomplete ? 'on' : 'off'}
+        className={className}
         onSubmit={submit}
-        noValidate
-        id={id}
+        autoComplete={autoComplete ? 'on' : 'off'}
+        noValidate={noValidate}
+        {...props}
       >
-        {children}
+        {render({ submitting, invalid })}
       </form>
     </FormContext.Provider>
   );

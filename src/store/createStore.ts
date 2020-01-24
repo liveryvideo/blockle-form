@@ -1,50 +1,32 @@
-export interface Action<T extends string = string> {
-  type: T;
-}
+import { FormReducer, formReducer } from './reducer';
+import { Actions } from './actions';
 
-export interface ActionWithPayload<T extends string, P extends {}> extends Action {
-  type: T;
-  payload: P;
-}
+type Listener = () => void;
 
-type Listener<S> = (state: S, currentState: S) => void;
+export const createStore = () => {
+  let currentState: FormReducer = {};
+  const listeners: Listener[] = [];
 
-export type Reducer<S, A extends Action> = (state: S, action: A) => S;
+  const getState = () => currentState;
 
-export type Store<S, A extends Action> = {
-  dispatch: (action: A) => void,
-  getState: () => S,
-  subscribe: (listener: Listener<S>) => () => void,
-};
-
-export const createStore = <S, A extends Action = Action>(reducer: Reducer<any, any>, initialState: S = {} as S) => {
-  const listeners: Listener<S>[] = [];
-  let currentState = initialState;
-
-  function dispatch(action: A) {
-    const prevState = currentState;
-
-    currentState = reducer(currentState, action);
-
-    listeners.forEach(listener => listener(currentState, prevState));
-  }
-
-  function getState() {
-    return currentState;
-  }
-
-  function subscribe(listener: Listener<S>) {
+  const subscribe = (listener: Listener) => {
     listeners.push(listener);
 
-    return function unsubscribe() {
+    return () => {
       const index = listeners.indexOf(listener);
       listeners.splice(index, 1);
     };
-  }
+  };
+
+  const dispatch = (action: Actions) => {
+    currentState = formReducer(currentState, action);
+
+    listeners.forEach(listener => listener());
+  };
 
   return {
-    dispatch,
     getState,
     subscribe,
+    dispatch,
   };
 };

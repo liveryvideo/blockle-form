@@ -1,30 +1,16 @@
-import { FormState } from 'types';
+import { FormReducer } from './reducer';
+import { FormData } from '../types';
 
-export const getField = (state: FormState, name: string) =>
-  state[name];
+export const getFormData = (state: FormReducer) => {
+  const values = Object.values(state).map(({ name, value }) => ({ name, value }));
+  const formData: FormData = {};
 
-export const getFields = (state: FormState) =>
-  Object.values(state);
-
-export const getValueMap = (state: FormState) => {
-  const map: { [key: string]: any } = {};
-
-  getFields(state).forEach(({ name, value }) => {
-    map[name] = value;
+  values.forEach(({ name, value }) => {
+    formData[name] = value;
   });
 
-  return map;
+  return formData;
 };
 
-export const isValid = (state: FormState) => {
-  const fields = getFields(state);
-  let valid = true;
-
-  fields.forEach((field) => {
-    if (field.invalid) {
-      valid = false;
-    }
-  });
-
-  return valid;
-};
+export const isFormInvalid = (state: FormReducer) =>
+  Object.values(state).some(({ validationMessage }) => validationMessage !== null);

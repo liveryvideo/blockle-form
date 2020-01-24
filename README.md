@@ -1,86 +1,71 @@
 # @blockle/form
 
-```jsx
-import { Form, FormError } from '@blockle/form';
-import Input from 'myComponents/Input';
+## Install
 
-const submit = () =>
-  new Promise(resolve => {
-    setTimeout(resolve, 1000);
-  });
+```bash
+yarn add @blockle/form
+```
+
+## Usage
+
+```tsx
+import React, { useState } from 'react';
+import { Form, useField, FieldProps } from '@blockle/form';
+
+interface FormData {
+  name: string;
+}
 
 const MyForm = () => {
-  const [isSubmitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
+  const submit = async (formData: FormData) => {
+    try {
+      await xhr.send(formData);
+    } catch(error) {
+      setErrorMessage(error.message);
+    }
+  }
 
   return (
     <Form
       onSubmit={submit}
-    >
-      <Input
-        type="text"
-        name="firstName"
-        required
-      />
+      render={({ invalid, submitting }) => (
+        <Input name="name" type="text" required />
 
-      <VegetableSelect name="vegetable" required />
+        {errorMessage
+          && <div>{errorMessage}</div>}
 
-      <FormError
-        for="vegetable"
-        render={(message) => (
-          <div>{message}</div>
-        )}
-      >
-
-      <submit type="submit" value="send" />
-    </Form>
+        <button disabled={invalid || submitting}>Submit</button>
+      )}
+    />
   );
 }
-```
 
-## Custom form components
+// Input.tsx
+interface InputProps extends FieldProps<string> {
+  type: 'text' | 'password';
+  required: boolean;
+}
 
-```tsx
-import { useForm } from '@blockle/form';
-
-type Props = FormElementProps<string>;
-
-export const VegetableSelect = ({ name, value: propValue, required }) => {
-  const { value, setValue, invalid } = useForm<string>({
-    name,
-    value: propValue,
-    validate: (value: string) => {
-      if(required && !value) {
+const Input = ({ name, value, type, required }: InputProps) => {
+  const field = useField<string>(name, {
+    value,
+    validate(value) {
+      if(required && !value.trim()) {
         return 'required';
       }
 
       return null;
     }
-  }); 
+  });
 
   return (
-    <div>
-      <button
-        onClick={() => setValue('artichokes')}
-        className={value === 'artichokes' ? 'selected' : ''}
-      >
-        Artichokes
-      </button>
-      <button
-        onClick={() => setValue('broccoli')}
-        className={value === 'broccoli' ? 'selected' : ''}
-      >
-        Broccoli
-      </button>
-      <button
-        onClick={() => setValue('carrots')}
-        className={value === 'carrots' ? 'selected' : ''}
-      >
-        Carrots
-      </button>
-
-      {(invalid === 'required') &&
-        <div>Please select an option</div>}
-    </div>
-  )
+    <input
+      type={type}
+      value={field.value}
+      onChange={(event) => field.setValue(event.currentTarget.value)}
+      onFocus={field.setTouched}
+    />
+  );
 }
 ```

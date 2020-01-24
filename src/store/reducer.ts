@@ -1,50 +1,64 @@
-import { Reducer } from './createStore';
 import { Actions } from './actions';
-import { FormState } from '../types';
+import { FieldState } from '../types';
 
-export const initialState: FormState = {};
+export type FormReducer = {
+  [type: string]: FieldState<unknown>;
+};
 
-export const reducer: Reducer<FormState, Actions> = (state, action): FormState => {
+const initialState: FormReducer = {};
+
+export const formReducer = (state = initialState, action: Actions): FormReducer => {
   switch (action.type) {
-    // TODO SET_VALUE
-    case 'UPDATE_FIELD': {
-      const { name } = action.payload;
-      // const errors = action.payload.errors || state[name].errors || {};
-
+    case 'INIT':
       return {
         ...state,
-        [name]: {
-          ...state[name],
-          ...action.payload,
-          // invalid: !!Object.keys(errors).length,
+        [action.payload.name]: {
+          name: action.payload.name,
+          dirty: false,
+          touched: false,
+          validationMessage: action.payload.state.validationMessage,
+          value: action.payload.state.value,
         },
       };
-    }
 
-    case 'SET_VALUE': {
-      const { name, value, errors } = action.payload;
-
+    case 'UPDATE_FIELD':
       return {
         ...state,
-        [name]: {
-          ...state[name],
-          name,
-          value,
-          errors,
-          invalid: errors ? !!Object.keys(errors).length : false,
+        [action.payload.name]: {
+          ...state[action.payload.name],
+          ...action.payload.state,
         },
       };
+
+    case 'SET_TOUCHED':
+      return {
+        ...state,
+        [action.payload.name]: {
+          ...state[action.payload.name],
+          touched: true,
+        },
+      };
+
+    case 'SET_TOUCHED_ALL': {
+      const keys = Object.keys(state);
+      const nextState: FormReducer = {};
+
+      keys.forEach(key => {
+        const field = state[key];
+        nextState[key] = field.touched ? field : { ...field, touched: true };
+      });
+
+      return nextState;
     }
 
-    case 'REMOVE':
+    case 'REMOVE_FIELD':
       const nextState = { ...state };
 
-      delete nextState[action.payload.name];
+      delete nextState[action.payload];
 
       return nextState;
 
     default:
-      // @ts-ignore
-      throw new Error(`Unkown action type "${action.type}"`);
+      return state;
   }
 };

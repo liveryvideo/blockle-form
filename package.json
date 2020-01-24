@@ -1,14 +1,20 @@
 {
   "name": "@blockle/form",
-  "version": "0.0.1-alpha.0",
+  "version": "0.0.1-alpha.13",
   "description": "Blockle Form",
   "scripts": {
-    "start": "npm run build:ts -- -w | npm run build:types -- -w",
-    "build": "rm -rf ./dist/ && npm run build:ts && npm run build:types",
     "build:ts": "rollup -c",
     "build:types": "tsc -d --emitDeclarationOnly",
-    "test": "jest",
-    "lint": "tslint -p tsconfig.json"
+    "build": "rm -rf ./dist/ && npm run build:ts && npm run build:types",
+    "format": "prettier --write \"**/*\"",
+    "lint": "eslint -p tsconfig.json",
+    "start": "npm run build:ts -- -w | npm run build:types -- -w",
+    "test": "jest"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
   },
   "main": "dist/blockle-form.cjs.js",
   "module": "dist/blockle-form.esm.js",
@@ -21,25 +27,34 @@
   "author": "Niek Saarberg",
   "license": "MIT",
   "devDependencies": {
-    "@exmg/tslint-config": "^1.0.1",
+    "@testing-library/jest-dom": "^4.1.2",
+    "@testing-library/react": "^9.3.0",
     "@types/jest": "^24.0.11",
     "@types/react": "^16.7.18",
     "@types/react-dom": "^16.0.11",
+    "@typescript-eslint/eslint-plugin": "^2.4.0",
+    "@typescript-eslint/parser": "^2.4.0",
+    "eslint": "^6.5.1",
+    "eslint-config-prettier": "^6.4.0",
+    "eslint-plugin-prettier": "^3.1.1",
+    "eslint-plugin-react": "^7.16.0",
+    "eslint-plugin-react-hooks": "^2.1.2",
+    "husky": "^3.0.4",
     "jest": "^24.5.0",
     "jest-dom": "^3.0.0",
     "postcss-import": "^12.0.1",
     "postcss-preset-env": "^6.5.0",
-    "react": "^16.7.0",
-    "react-dom": "^16.7.0",
-    "react-testing-library": "^6.0.0",
+    "prettier": "^1.18.2",
+    "pretty-quick": "^1.11.1",
+    "react": "^16.10.2",
+    "react-dom": "^16.10.2",
     "rollup": "^1.0.0",
     "rollup-plugin-commonjs": "^9.2.0",
     "rollup-plugin-node-resolve": "^4.0.0",
     "rollup-plugin-postcss": "^2.0.3",
     "rollup-plugin-typescript2": "^0.20.1",
     "ts-jest": "^24.0.0",
-    "tslint": "^5.12.0",
-    "typescript": "^3.2.2"
+    "typescript": "^3.5.3"
   },
   "peerDependencies": {
     "react": "^16.7.0",
