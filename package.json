@@ -1,6 +1,6 @@
 {
   "name": "@blockle/form",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Blockle Form",
   "scripts": {
     "build:ts": "rollup -c",
