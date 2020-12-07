@@ -1,10 +1,9 @@
 import { useContext, useEffect, useRef } from 'react';
-
 import { FormContext } from './context';
-import { initField, setTouched, updateField, removeField } from './store/actions';
-import { useFieldState } from './useFieldState';
 import { globalStore } from './globalStore';
+import { initField, removeField, setTouched, updateField } from './store/actions';
 import { FieldState } from './types';
+import { useFieldState } from './useFieldState';
 
 type Options<V> = {
   validate: (value: V) => null | string;

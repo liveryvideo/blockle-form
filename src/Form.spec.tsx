@@ -1,8 +1,7 @@
 import '@testing-library/jest-dom/extend-expect';
+import { cleanup, fireEvent, render } from '@testing-library/react';
 import React from 'react';
-import { render, cleanup, fireEvent } from '@testing-library/react';
-
-import { Form, FieldProps } from '.';
+import { FieldProps, Form } from '.';
 import { useField } from './useField';
 
 afterEach(cleanup);
@@ -30,7 +29,7 @@ const Input = ({ name, required, value, placeholder }: InputProps) => {
         type="text"
         name={name}
         value={field.value}
-        onChange={e => field.setValue(e.target.value)}
+        onChange={(e) => field.setValue(e.target.value)}
         placeholder={placeholder}
         onBlur={field.setTouched}
       />
@@ -217,7 +216,7 @@ describe('Form', () => {
 
     const { getByText } = render(
       <Form
-        onSubmit={() => new Promise(resolve => setTimeout(resolve, 200))}
+        onSubmit={() => new Promise((resolve) => setTimeout(resolve, 200))}
         render={({ submitting }) => (
           <>
             <Input name="npt" placeholder="name" value="test" />

@@ -1,10 +1,9 @@
-import { useState, useRef, useEffect, useContext } from 'react';
-
-import { FieldState } from './types';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { FormContext } from './context';
 import { globalStore } from './globalStore';
+import { FieldState } from './types';
 
-export const useFieldState = <V = unknown>(name: string, initialValue?: any) => {
+export const useFieldState = <V = unknown>(name: string, initialValue: V) => {
   const store = useContext(FormContext) || globalStore;
   const [state, setState] = useState<FieldState<V>>({
     name,
@@ -22,7 +21,7 @@ export const useFieldState = <V = unknown>(name: string, initialValue?: any) => 
       const prevState = currentState.current;
       const nextState = store.getState()[name] as FieldState<V>;
 
-      if (prevState !== nextState) {
+      if (nextState && prevState !== nextState) {
         setState(nextState);
         currentState.current = nextState;
       }

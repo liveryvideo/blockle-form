@@ -1,10 +1,9 @@
-import React, { useMemo, useState, useEffect } from 'react';
-
+import React, { useEffect, useMemo, useState } from 'react';
 import { FormContext } from './context';
-import { createStore } from './store/createStore';
-import { FormData } from './types';
-import { isFormInvalid, getFormData } from './store/selectors';
 import { setTouchedAll } from './store/actions';
+import { createStore } from './store/createStore';
+import { getFormData, isFormInvalid } from './store/selectors';
+import { FormData } from './types';
 
 interface Props extends React.HTMLAttributes<HTMLFormElement> {
   onSubmit: (formData: FormData) => void | Promise<void>;
@@ -62,7 +61,7 @@ const Form = ({
     if (result && result.then) {
       result
         .then(() => setSubmitting(false))
-        .catch(error => {
+        .catch((error) => {
           setSubmitting(false);
           throw error;
         });
