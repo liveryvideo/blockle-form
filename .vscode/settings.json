@@ -2,20 +2,13 @@
   "tslint.enable": false,
   "editor.formatOnSave": true,
   "typescript.tsdk": "node_modules/typescript/lib",
-  "eslint.enable": true,
   "prettier.requireConfig": true,
   "stylelint.enable": true,
   "css.validate": false,
   "eslint.validate": [
     "javascript",
     "javascriptreact",
-    {
-      "language": "typescript",
-      "autoFix": true
-    },
-    {
-      "language": "typescriptreact",
-      "autoFix": true
-    }
+    "typescript",
+    "typescriptreact"
   ]
 }
