@@ -1,42 +1,38 @@
-import { FieldState } from '../types';
+export const createAction = <Type extends string>(type: Type) => ({
+  type,
+});
 
-export interface ActionWithPayload<T extends string, P> {
-  type: T;
-  payload: P;
-}
-
-export const createActionWithPayload = <T extends string, P>(
-  type: T,
-  payload: P,
-): ActionWithPayload<T, P> => ({
+export const createActionWithPayload = <Type extends string, Payload>(
+  type: Type,
+  payload: Payload,
+) => ({
   type,
   payload,
 });
 
-// Initialize field state
-export const initField = <V>(
-  name: string,
-  state: Pick<FieldState<V>, 'value' | 'validationMessage'>,
-) => createActionWithPayload('INIT', { name, state });
+export const init = () => createAction('INIT');
 
-// Update field state
-export const updateField = <V>(name: string, state: Partial<FieldState<V>>) =>
-  createActionWithPayload('UPDATE_FIELD', { name, state });
+export const setFormSubmitting = (submitting: boolean) =>
+  createActionWithPayload('SET_FORM_SUBMITTING', submitting);
 
-// Field is touched
-export const setTouched = (name: string) => createActionWithPayload('SET_TOUCHED', { name });
+export const setFormTouched = () => createAction('SET_FORM_TOUCHED');
 
-// Remove field state
+export const initField = (name: string, value: unknown) =>
+  createActionWithPayload('INIT_FIELD', { name, value });
+
 export const removeField = (name: string) => createActionWithPayload('REMOVE_FIELD', name);
 
-// Remove field state
-export const setTouchedAll = () => ({ type: 'SET_TOUCHED_ALL' } as const);
+export const setFieldTouched = (name: string) => createActionWithPayload('SET_FIELD_TOUCHED', name);
 
-// List of actions for formReducer
+export const updateField = (name: string, details: { value: unknown; error: string | null }) =>
+  createActionWithPayload('UPDATE_FIELD', { name, details });
+
 export type Actions = ReturnType<
+  | typeof init
+  | typeof setFormSubmitting
+  | typeof setFormTouched
   | typeof initField
-  | typeof updateField
-  | typeof setTouched
   | typeof removeField
-  | typeof setTouchedAll
+  | typeof setFieldTouched
+  | typeof updateField
 >;

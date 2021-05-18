@@ -1,64 +1,92 @@
 import { Actions } from './actions';
-import { FieldState } from '../types';
 
-export type FormReducer = {
-  [type: string]: FieldState<unknown>;
+interface FieldState {
+  dirty: boolean;
+  error: string | null;
+  name: string;
+  touched: boolean;
+  value: unknown;
+  initialValue: unknown;
+}
+
+export interface FormReducer {
+  submitting: boolean;
+  fields: Record<string, FieldState>;
+}
+
+const initialState: FormReducer = {
+  submitting: false,
+  fields: {},
 };
 
-const initialState: FormReducer = {};
-
-export const formReducer = (state = initialState, action: Actions): FormReducer => {
+export function reducer(state = initialState, action: Actions): FormReducer {
   switch (action.type) {
-    case 'INIT':
+    case 'SET_FORM_TOUCHED': {
+      const fields = Object.entries(state.fields).map(([name, data]) => {
+        return [name, { ...data, touched: true }];
+      });
+
       return {
         ...state,
-        [action.payload.name]: {
-          name: action.payload.name,
-          dirty: false,
-          touched: false,
-          validationMessage: action.payload.state.validationMessage,
-          value: action.payload.state.value,
+        fields: Object.fromEntries(fields),
+      };
+    }
+
+    case 'SET_FORM_SUBMITTING':
+      return {
+        ...state,
+        submitting: action.payload,
+      };
+
+    case 'INIT_FIELD':
+      return {
+        ...state,
+        fields: {
+          ...state.fields,
+          [action.payload.name]: {
+            ...action.payload,
+            dirty: false,
+            error: null,
+            touched: false,
+            initialValue: action.payload.value,
+          },
         },
       };
 
     case 'UPDATE_FIELD':
       return {
         ...state,
-        [action.payload.name]: {
-          ...state[action.payload.name],
-          ...action.payload.state,
+        fields: {
+          ...state.fields,
+          [action.payload.name]: {
+            ...state.fields[action.payload.name],
+            ...action.payload.details,
+            dirty: action.payload.details.value !== state.fields[action.payload.name].initialValue,
+          },
         },
       };
 
-    case 'SET_TOUCHED':
-      return {
-        ...state,
-        [action.payload.name]: {
-          ...state[action.payload.name],
-          touched: true,
-        },
-      };
+    case 'REMOVE_FIELD': {
+      const nextState = { ...state, fields: { ...state.fields } };
 
-    case 'SET_TOUCHED_ALL': {
-      const keys = Object.keys(state);
-      const nextState: FormReducer = {};
-
-      keys.forEach(key => {
-        const field = state[key];
-        nextState[key] = field.touched ? field : { ...field, touched: true };
-      });
+      delete nextState.fields[action.payload];
 
       return nextState;
     }
 
-    case 'REMOVE_FIELD':
-      const nextState = { ...state };
-
-      delete nextState[action.payload];
-
-      return nextState;
+    case 'SET_FIELD_TOUCHED':
+      return {
+        ...state,
+        fields: {
+          ...state.fields,
+          [action.payload]: {
+            ...state.fields[action.payload],
+            touched: true,
+          },
+        },
+      };
 
     default:
       return state;
   }
-};
+}
