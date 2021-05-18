@@ -10,47 +10,43 @@ yarn add @blockle/form
 
 ```tsx
 import React, { useState } from 'react';
-import { Form, useField, FieldProps } from '@blockle/form';
+import { Form, useField, useForm } from '@blockle/form';
 
-interface FormData {
+interface UserForm {
   name: string;
 }
 
 const MyForm = () => {
-  const [errorMessage, setErrorMessage] = useState(null);
-  const submit = async (formData: FormData) => {
-    try {
-      await xhr.send(formData);
-    } catch(error) {
-      setErrorMessage(error.message);
-    }
-  }
+  const form = useForm<UserForm>({
+    async submit(data) {
+      console.log('Form valid', data);
+    },
+  });
+
+  // See form.values, form.erors
 
   return (
-    <Form
-      onSubmit={submit}
-      render={({ invalid, submitting }) => (
-        <Input name="name" type="text" required />
+    <Form form={form}>
+      <Input name="name" type="text" required />
 
-        {errorMessage
-          && <div>{errorMessage}</div>}
-
-        <button disabled={invalid || submitting}>Submit</button>
-      )}
-    />
+      <button disabled={invalid || submitting}>Submit</button>
+    </form>
   );
 }
 
 // Input.tsx
-interface InputProps extends FieldProps<string> {
+interface Props {
+  name: string;
+  value?: string;
   type: 'text' | 'password';
   required: boolean;
 }
 
-const Input = ({ name, value, type, required }: InputProps) => {
+const Input: FC<Props> = ({ name, value, type, required }) => {
   const field = useField<string>(name, {
     value,
     validate(value) {
+      // Return string with "error code"
       if(required && !value.trim()) {
         return 'required';
       }
@@ -64,7 +60,7 @@ const Input = ({ name, value, type, required }: InputProps) => {
       type={type}
       value={field.value}
       onChange={(event) => field.setValue(event.currentTarget.value)}
-      onFocus={field.setTouched}
+      onBlur={field.setTouched}
     />
   );
 }
