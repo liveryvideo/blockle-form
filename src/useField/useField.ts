@@ -46,6 +46,15 @@ export function useField<Value>({
     };
   }, [name]);
 
+  useEffect(() => {
+    store.dispatch(
+      updateField(name, {
+        value,
+        error: validate(value as Value),
+      }),
+    );
+  }, [name, value]);
+
   return {
     ...state,
     value: state.value as Value,
