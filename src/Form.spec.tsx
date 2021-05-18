@@ -1,19 +1,21 @@
 import '@testing-library/jest-dom/extend-expect';
 import { cleanup, fireEvent, render } from '@testing-library/react';
-import React from 'react';
-import { FieldProps, Form } from '.';
-import { useField } from './useField';
+import React, { FC } from 'react';
+import { Form, useField, useForm } from '.';
 
 afterEach(cleanup);
 
-type InputProps = {
+interface InputProps {
+  name: string;
+  value?: string;
   required?: boolean;
   placeholder: string;
-} & FieldProps<string>;
+}
 
-const Input = ({ name, required, value, placeholder }: InputProps) => {
-  const field = useField<string>(name, {
-    value: value || '',
+const Input: FC<InputProps> = ({ name, required, value = '', placeholder }) => {
+  const field = useField<string>({
+    name,
+    value: value,
     validate(value) {
       if (required && !value.trim()) {
         return 'required';
@@ -40,38 +42,44 @@ const Input = ({ name, required, value, placeholder }: InputProps) => {
 
 describe('Form', () => {
   it('should render Input', () => {
-    const { container } = render(
-      <Form
-        onSubmit={() => {}}
-        render={({ invalid, submitting }) => (
-          <>
-            <Input name="npt" placeholder="name" />
-            <button type="submit" disabled={invalid || submitting}>
-              submit
-            </button>
-          </>
-        )}
-      />,
-    );
+    const Test: FC = () => {
+      const form = useForm({
+        submit() {},
+      });
+
+      return (
+        <Form form={form}>
+          <Input name="npt" placeholder="name" />
+          <button type="submit" disabled={form.invalid || form.submitting}>
+            submit
+          </button>
+        </Form>
+      );
+    };
+
+    const { container } = render(<Test />);
 
     expect(container).toHaveTextContent('submit');
   });
 
   it('should submit', async () => {
     const spy = jest.fn();
-    const { findByText } = render(
-      <Form
-        onSubmit={spy}
-        render={({ invalid, submitting }) => (
-          <>
-            <Input name="npt" value="test" placeholder="name" />
-            <button type="submit" disabled={invalid || submitting}>
-              submit
-            </button>
-          </>
-        )}
-      />,
-    );
+    const Test: FC = () => {
+      const form = useForm({
+        submit: spy,
+      });
+
+      return (
+        <Form form={form}>
+          <Input name="npt" value="test" placeholder="name" />
+          <button type="submit" disabled={form.invalid || form.submitting}>
+            submit
+          </button>
+        </Form>
+      );
+    };
+
+    const { findByText } = render(<Test />);
 
     const button = await findByText('submit');
 
@@ -84,17 +92,20 @@ describe('Form', () => {
 
   it('should not submit when form is invalid', async () => {
     const spy = jest.fn();
-    const { findByText } = render(
-      <Form
-        onSubmit={spy}
-        render={() => (
-          <>
-            <Input name="npt" required placeholder="name" />
-            <button type="submit">submit</button>
-          </>
-        )}
-      />,
-    );
+    const Test: FC = () => {
+      const form = useForm({
+        submit: spy,
+      });
+
+      return (
+        <Form form={form}>
+          <Input name="npt" required placeholder="name" />
+          <button type="submit">submit</button>
+        </Form>
+      );
+    };
+
+    const { findByText } = render(<Test />);
 
     const button = await findByText('submit');
 
@@ -103,44 +114,24 @@ describe('Form', () => {
     expect(spy).not.toBeCalled();
   });
 
-  it('should update form validity', async () => {
-    const spy = jest.fn();
-    const { findByText } = render(
-      <Form
-        onSubmit={spy}
-        render={({ invalid }) => (
-          <>
-            <Input name="npt" required placeholder="name" />
-            <button type="submit" disabled={invalid}>
-              submit
-            </button>
-          </>
-        )}
-      />,
-    );
-
-    const button = await findByText('submit');
-
-    fireEvent.click(button);
-
-    expect(spy).not.toBeCalledTimes(1);
-  });
-
   it('should update value and validity', async () => {
     const spy = jest.fn();
-    const { findByText, findByPlaceholderText } = render(
-      <Form
-        onSubmit={spy}
-        render={({ invalid, submitting }) => (
-          <>
-            <Input name="npt" placeholder="name" required />
-            <button type="submit" disabled={invalid || submitting}>
-              submit
-            </button>
-          </>
-        )}
-      />,
-    );
+    const Test: FC = () => {
+      const form = useForm({
+        submit: spy,
+      });
+
+      return (
+        <Form form={form}>
+          <Input name="npt" placeholder="name" required />
+          <button type="submit" disabled={form.invalid || form.submitting}>
+            submit
+          </button>
+        </Form>
+      );
+    };
+
+    const { findByText, findByPlaceholderText } = render(<Test />);
 
     const button = await findByText('submit');
     const input = await findByPlaceholderText('name');
@@ -155,33 +146,24 @@ describe('Form', () => {
 
   it('should update value from prop', async () => {
     const spy = jest.fn();
-    const { rerender, findByPlaceholderText } = render(
-      <Form
-        onSubmit={spy}
-        render={({ invalid, submitting }) => (
-          <>
-            <Input name="npt" placeholder="name" required />
-            <button type="submit" disabled={invalid || submitting}>
-              submit
-            </button>
-          </>
-        )}
-      />,
-    );
+    const Test: FC<{ value?: string }> = ({ value }) => {
+      const form = useForm({
+        submit: spy,
+      });
 
-    rerender(
-      <Form
-        onSubmit={spy}
-        render={({ invalid, submitting }) => (
-          <>
-            <Input name="npt" value="Barros" placeholder="name" required />
-            <button type="submit" disabled={invalid || submitting}>
-              submit
-            </button>
-          </>
-        )}
-      />,
-    );
+      return (
+        <Form form={form}>
+          <Input name="npt" value={value} placeholder="name" required />
+          <button type="submit" disabled={form.invalid || form.submitting}>
+            submit
+          </button>
+        </Form>
+      );
+    };
+
+    const { rerender, findByPlaceholderText } = render(<Test />);
+
+    rerender(<Test value="Barros" />);
 
     const input = await findByPlaceholderText('name');
 
@@ -190,19 +172,22 @@ describe('Form', () => {
 
   it('should display field error when touched', async () => {
     const spy = jest.fn();
-    const { getByText, findByPlaceholderText } = render(
-      <Form
-        onSubmit={spy}
-        render={({ invalid, submitting }) => (
-          <>
-            <Input name="npt" placeholder="name" required />
-            <button type="submit" disabled={invalid || submitting}>
-              submit
-            </button>
-          </>
-        )}
-      />,
-    );
+    const Test: FC = () => {
+      const form = useForm({
+        submit: spy,
+      });
+
+      return (
+        <Form form={form}>
+          <Input name="npt" placeholder="name" required />
+          <button type="submit" disabled={form.invalid || form.submitting}>
+            submit
+          </button>
+        </Form>
+      );
+    };
+
+    const { getByText, findByPlaceholderText } = render(<Test />);
 
     const input = await findByPlaceholderText('name');
 
@@ -214,19 +199,22 @@ describe('Form', () => {
   it('should handle async submit action', async () => {
     jest.useFakeTimers();
 
-    const { getByText } = render(
-      <Form
-        onSubmit={() => new Promise((resolve) => setTimeout(resolve, 200))}
-        render={({ submitting }) => (
-          <>
-            <Input name="npt" placeholder="name" value="test" />
-            <button type="submit" disabled={submitting}>
-              submit
-            </button>
-          </>
-        )}
-      />,
-    );
+    const Test: FC = () => {
+      const form = useForm({
+        submit: () => new Promise((resolve) => setTimeout(resolve, 200)),
+      });
+
+      return (
+        <Form form={form}>
+          <Input name="npt" placeholder="name" value="test" />
+          <button type="submit" disabled={form.submitting}>
+            submit
+          </button>
+        </Form>
+      );
+    };
+
+    const { getByText } = render(<Test />);
 
     const button = getByText('submit');
 
