@@ -43,7 +43,8 @@ interface Props {
 }
 
 const Input: FC<Props> = ({ name, value, type, required }) => {
-  const field = useField<string>(name, {
+  const field = useField<string>({
+    name,
     value,
     validate(value) {
       // Return string with "error code"
