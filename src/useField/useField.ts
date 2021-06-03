@@ -60,8 +60,6 @@ export function useField<Value>({
     value: state.value as Value,
     invalid: !!state.error,
     setValue(nextValue) {
-      store.dispatch(setFieldTouched(name));
-
       store.dispatch(
         updateField(name, {
           value: nextValue,
