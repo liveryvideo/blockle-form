@@ -5,6 +5,10 @@ import { Form, useField, useForm } from '.';
 
 afterEach(cleanup);
 
+interface FormData {
+  npt: string;
+}
+
 interface InputProps {
   name: string;
   value?: string;
@@ -43,7 +47,7 @@ const Input: FC<InputProps> = ({ name, required, value = '', placeholder }) => {
 describe('Form', () => {
   it('should render Input', () => {
     const Test: FC = () => {
-      const form = useForm({
+      const form = useForm<FormData>({
         submit() {},
       });
 

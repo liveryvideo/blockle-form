@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef, useState } from 'react';
+import { updateField } from '../store/actions';
 import { createStore } from '../store/createStore';
 import { FormReducer } from '../store/reducer';
 
@@ -10,11 +11,7 @@ export interface UseForm<Data extends EmptyInterface> {
   invalid: boolean;
   submitting: boolean;
   touched: boolean;
-  reset: <Name extends keyof Data>(name?: Name) => void;
-  // setValue: <Name extends keyof Data>(name: Name, value: Data[Name]) => void;
-  // getValue: <Name extends keyof Data>(name: Name) => Data[Name];
-  // values: Data;
-  // errors: Record<keyof Data, string | null>;
+  setValue: <Name extends keyof Data>(name: Name, value: Data[Name]) => void;
   store: ReturnType<typeof createStore>;
   submit: (data: Data) => Promise<void> | void;
   values: Data;
@@ -86,14 +83,14 @@ export function useForm<Data extends EmptyInterface>({ submit }: Options<Data>):
         errors: getErrors(formState) as Record<keyof Data, string | null>,
       }));
     });
-  }, []);
+  }, [current.store]);
 
   return {
     ...state,
-    reset() {
-      return console.log('To be implemented');
-    },
     store: current.store,
     submit,
+    setValue(name, nextValue) {
+      current.store?.dispatch(updateField(name as string, nextValue));
+    },
   };
 }

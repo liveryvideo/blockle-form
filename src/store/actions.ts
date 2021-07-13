@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 export const createAction = <Type extends string>(type: Type) => ({
   type,
 });
@@ -17,22 +18,25 @@ export const setFormSubmitting = (submitting: boolean) =>
 
 export const setFormTouched = () => createAction('SET_FORM_TOUCHED');
 
-export const initField = (name: string, value: unknown) =>
-  createActionWithPayload('INIT_FIELD', { name, value });
+export const initField = (
+  name: string,
+  value: unknown,
+  validator: (value: any) => string | null = () => null,
+) => createActionWithPayload('INIT_FIELD', { name, value, validator });
 
 export const removeField = (name: string) => createActionWithPayload('REMOVE_FIELD', name);
 
 export const setFieldTouched = (name: string) => createActionWithPayload('SET_FIELD_TOUCHED', name);
 
-export const updateField = (name: string, details: { value: unknown; error: string | null }) =>
-  createActionWithPayload('UPDATE_FIELD', { name, details });
+export const updateField = (name: string, value: unknown) =>
+  createActionWithPayload('UPDATE_FIELD', { name, value });
 
 export type Actions = ReturnType<
   | typeof init
-  | typeof setFormSubmitting
-  | typeof setFormTouched
   | typeof initField
   | typeof removeField
   | typeof setFieldTouched
+  | typeof setFormSubmitting
+  | typeof setFormTouched
   | typeof updateField
 >;

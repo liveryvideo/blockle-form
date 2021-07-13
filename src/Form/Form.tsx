@@ -1,10 +1,11 @@
-import React, { FC, HTMLAttributes, SyntheticEvent } from 'react';
+import React, { FC, SyntheticEvent } from 'react';
 import { FormContext } from '../FormContext/FormContext';
 import { setFormSubmitting, setFormTouched } from '../store/actions';
 import { UseForm } from '../useForm/useForm';
 
-interface Props extends Omit<HTMLAttributes<HTMLFormElement>, 'onSubmit'> {
+interface Props {
   form: UseForm<any>;
+  autoComplete?: string;
 }
 
 export const Form: FC<Props> = ({ children, form, ...restProps }) => {
