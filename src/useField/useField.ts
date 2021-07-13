@@ -32,40 +32,24 @@ export function useField<Value>({
   const state = store.getState().fields[name] || { value };
 
   useEffect(() => {
-    store.dispatch(initField(name, value));
-
-    store.dispatch(
-      updateField(name, {
-        value: value,
-        error: validate(value as Value),
-      }),
-    );
+    store.dispatch(initField(name, value, validate));
+    store.dispatch(updateField(name, value));
 
     return () => {
       store.dispatch(removeField(name));
     };
-  }, [name]);
+  }, [name, store]);
 
   useEffect(() => {
-    store.dispatch(
-      updateField(name, {
-        value,
-        error: validate(value as Value),
-      }),
-    );
-  }, [name, value]);
+    store.dispatch(updateField(name, value));
+  }, [name, value, store]);
 
   return {
     ...state,
     value: state.value as Value,
     invalid: !!state.error,
     setValue(nextValue) {
-      store.dispatch(
-        updateField(name, {
-          value: nextValue,
-          error: validate(nextValue),
-        }),
-      );
+      store.dispatch(updateField(name, nextValue));
     },
     setTouched() {
       store.dispatch(setFieldTouched(name));

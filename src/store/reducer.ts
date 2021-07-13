@@ -7,6 +7,7 @@ interface FieldState {
   touched: boolean;
   value: unknown;
   initialValue: unknown;
+  validator: (value: unknown) => string | null;
 }
 
 export interface FormReducer {
@@ -60,8 +61,9 @@ export function reducer(state = initialState, action: Actions): FormReducer {
           ...state.fields,
           [action.payload.name]: {
             ...state.fields[action.payload.name],
-            ...action.payload.details,
-            dirty: action.payload.details.value !== state.fields[action.payload.name].initialValue,
+            value: action.payload.value,
+            error: state.fields[action.payload.name].validator(action.payload.value),
+            dirty: action.payload.value !== state.fields[action.payload.name].initialValue,
           },
         },
       };
