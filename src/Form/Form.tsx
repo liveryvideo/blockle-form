@@ -6,6 +6,7 @@ import { UseForm } from '../useForm/useForm';
 interface Props {
   form: UseForm<any>;
   autoComplete?: string;
+  className?: string;
 }
 
 export const Form: FC<Props> = ({ children, form, ...restProps }) => {
